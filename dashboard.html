@@ -10,20 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #0066FF;
-            --bg-body: #F3F5F9;
-            --text-dark: #1F2937;
-        }
+        :root { --primary: #0066FF; --bg-body: #F3F5F9; --text-dark: #1F2937; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); padding-bottom: 80px; }
-        
-        /* NAVBAR */
         .navbar { background: white; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
         
-        /* KARTU UTAMA (Total Saldo) */
+        /* CARD HEADER (UPDATED) */
         .card-balance {
             background: linear-gradient(135deg, #0066FF 0%, #2563EB 100%);
-            border-radius: 20px; padding: 30px; color: white;
+            border-radius: 20px; padding: 25px; color: white;
             box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
             position: relative; overflow: hidden; margin-bottom: 25px;
         }
@@ -32,54 +26,30 @@
             width: 200px; height: 200px; background: rgba(255,255,255,0.1);
             border-radius: 50%; pointer-events: none;
         }
-
-        /* CARD PUTIH STANDARD */
-        .card-box {
-            background: white; border-radius: 16px; border: 1px solid #E5E7EB;
-            padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
-        /* DOMPET CARD (KECIL) */
-        .wallet-item {
-            background: white; border: 1px solid #E5E7EB; border-radius: 12px;
-            padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-            transition: 0.2s;
-        }
-        .wallet-item:hover { border-color: var(--primary); transform: translateX(5px); }
-        .wallet-icon {
-            width: 40px; height: 40px; border-radius: 10px; background: #EFF6FF; color: var(--primary);
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
-
-        /* TRANSAKSI LIST */
-        .trx-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 0; border-bottom: 1px solid #F3F4F6;
-        }
-        .trx-item:last-child { border-bottom: none; }
-        .trx-icon-box {
-            width: 45px; height: 45px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 15px;
-        }
-
-        /* WARNA IKON TRANSAKSI */
-        .bg-inc { background: #DCFCE7; color: #16A34A; }
-        .bg-exp { background: #FEE2E2; color: #DC2626; }
-        .bg-trf { background: #E0F2FE; color: #0284C7; }
-
-        /* GOAL PROGRESS */
-        .progress { height: 8px; border-radius: 10px; background-color: #F3F4F6; }
         
-        /* TOMBOL ADD */
-        .btn-float {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 60px; height: 60px; border-radius: 50%;
-            background: var(--primary); color: white; font-size: 24px;
-            border: none; box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4);
-            display: grid; place-items: center; z-index: 999;
-            transition: transform 0.2s;
+        /* AREA RINCIAN ASET */
+        .asset-breakdown {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .btn-float:hover { transform: scale(1.1); }
+        .asset-row {
+            display: flex; justify-content: space-between; margin-bottom: 5px;
+            padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .asset-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+        .card-box { background: white; border-radius: 16px; border: 1px solid #E5E7EB; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .wallet-item { background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .wallet-icon { width: 40px; height: 40px; border-radius: 10px; background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .trx-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F3F4F6; }
+        .trx-icon-box { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 15px; }
+        .bg-inc { background: #DCFCE7; color: #16A34A; } .bg-exp { background: #FEE2E2; color: #DC2626; } .bg-trf { background: #E0F2FE; color: #0284C7; }
+        .btn-float { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 24px; border: none; box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4); display: grid; place-items: center; z-index: 999; }
     </style>
 </head>
 <body>
@@ -92,132 +62,65 @@
     </nav>
 
     <div class="container">
-        
         <div class="card-balance">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
-                    <small class="opacity-75 d-block fw-semibold">Total Harta Bersih</small>
+                    <small class="opacity-75 d-block fw-semibold text-uppercase">Total Harta Bersih</small>
                     <h1 class="fw-bold mb-0" id="totalHarta">Rp 0</h1>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-white bg-opacity-25 mb-1" id="walletCount">0 Dompet</span><br>
-                    <small class="opacity-75" id="userEmail">User</small>
+                    <span class="badge bg-white bg-opacity-25" id="walletCount">0 Akun</span>
+                </div>
+            </div>
+
+            <div class="asset-breakdown">
+                <small class="opacity-75 fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem;">Lokasi Uang Kamu:</small>
+                <div id="detailAsetList">
+                    <small class="opacity-50">Memuat rincian...</small>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-            
             <div class="col-lg-8">
                 <div class="card-box">
-                    <div class="d-flex justify-content-between mb-3">
-                        <h6 class="fw-bold">Arus Kas</h6>
-                        <span class="badge bg-light text-dark">Bulan Ini</span>
-                    </div>
+                    <div class="d-flex justify-content-between mb-3"><h6 class="fw-bold">Arus Kas</h6><span class="badge bg-light text-dark">Bulan Ini</span></div>
                     <div style="height: 250px;"><canvas id="chartArusKas"></canvas></div>
                 </div>
-
                 <div class="card-box">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0">Riwayat Terakhir</h6>
-                        <small class="text-primary cursor-pointer" onclick="init()">Refresh Data</small>
-                    </div>
-                    <div id="transactionList" style="min-height: 200px;">
-                        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
-                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Riwayat Terakhir</h6><small class="text-primary cursor-pointer" onclick="init()">Refresh</small></div>
+                    <div id="transactionList" style="min-height: 200px;"><div class="text-center py-5"><div class="spinner-border text-primary"></div></div></div>
                 </div>
             </div>
 
             <div class="col-lg-4">
-                
                 <div class="card-box bg-light border-0">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0 text-primary">Dompet Saya</h6>
-                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="bukaModal('modalAddWallet')">+ Baru</button>
-                    </div>
-                    <div id="walletList">
-                        </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0 text-primary">Dompet Saya</h6><button class="btn btn-sm btn-primary rounded-pill px-3" onclick="bukaModal('modalAddWallet')">+ Baru</button></div>
+                    <div id="walletList"></div>
                 </div>
-
                 <div class="card-box">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0">Target Tabungan</h6>
-                        <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="bukaModal('modalGoal')">+ Target</button>
-                    </div>
-                    <div id="goalList">
-                        </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Target Tabungan</h6><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="bukaModal('modalGoal')">+ Target</button></div>
+                    <div id="goalList"></div>
                 </div>
-
                 <div class="card-box">
                     <h6 class="fw-bold mb-3">Aksi Cepat</h6>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary fw-bold text-start" onclick="bukaModal('modalTransfer')">
-                            <i class="fas fa-exchange-alt me-2"></i> Transfer Saldo
-                        </button>
-                        <button class="btn btn-outline-success fw-bold text-start" onclick="modeTrx('income')">
-                            <i class="fas fa-arrow-down me-2"></i> Catat Pemasukan
-                        </button>
-                        <button class="btn btn-outline-danger fw-bold text-start" onclick="modeTrx('expense')">
-                            <i class="fas fa-arrow-up me-2"></i> Catat Pengeluaran
-                        </button>
+                        <button class="btn btn-outline-primary fw-bold text-start" onclick="bukaModal('modalTransfer')"><i class="fas fa-exchange-alt me-2"></i> Transfer Saldo</button>
+                        <button class="btn btn-outline-success fw-bold text-start" onclick="modeTrx('income')"><i class="fas fa-arrow-down me-2"></i> Catat Pemasukan</button>
+                        <button class="btn btn-outline-danger fw-bold text-start" onclick="modeTrx('expense')"><i class="fas fa-arrow-up me-2"></i> Catat Pengeluaran</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <button class="btn-float" onclick="bukaModal('modalTransaksi')">
-        <i class="fas fa-plus"></i>
-    </button>
+    <button class="btn-float" onclick="bukaModal('modalTransaksi')"><i class="fas fa-plus"></i></button>
 
-    <div class="modal fade" id="modalTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
-        <h5 class="fw-bold mb-4">Catat Transaksi</h5>
-        <div class="d-flex gap-2 mb-3">
-            <input type="radio" class="btn-check" name="trxType" id="exp" value="expense" checked onchange="updateCat()">
-            <label class="btn btn-outline-danger w-50" for="exp" id="lblExp">Keluar</label>
-            <input type="radio" class="btn-check" name="trxType" id="inc" value="income" onchange="updateCat()">
-            <label class="btn btn-outline-success w-50" for="inc" id="lblInc">Masuk</label>
-        </div>
-        <div class="mb-2"><label class="small fw-bold">Dompet</label><select class="form-select" id="trxWallet"></select></div>
-        <div class="mb-2"><label class="small fw-bold">Nominal</label><input type="number" class="form-control" id="trxAmount" placeholder="0"></div>
-        <div class="mb-2"><label class="small fw-bold">Kategori</label><select class="form-select" id="trxCategory"></select></div>
-        <div class="mb-3"><label class="small fw-bold">Catatan</label><input type="text" class="form-control" id="trxDesc"></div>
-        <button class="btn btn-primary w-100 fw-bold" onclick="simpanTransaksi()">Simpan</button>
-    </div></div></div></div>
-
-    <div class="modal fade" id="modalAddWallet" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
-        <h5 class="fw-bold mb-3">Tambah Dompet</h5>
-        <input type="hidden" id="editWId">
-        <div class="mb-2"><label>Nama Dompet</label><input type="text" class="form-control" id="wName" placeholder="Contoh: BCA"></div>
-        <div class="mb-3"><label>Saldo Awal</label><input type="number" class="form-control" id="wBalance" placeholder="0"></div>
-        <button class="btn btn-primary w-100" onclick="simpanDompet()">Simpan</button>
-    </div></div></div></div>
-
-    <div class="modal fade" id="modalTransfer" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
-        <h5 class="fw-bold text-center mb-3">Transfer</h5>
-        <div class="d-flex gap-2 mb-2">
-            <div class="w-50"><label class="small fw-bold text-danger">DARI</label><select class="form-select" id="tfFrom"></select></div>
-            <div class="w-50"><label class="small fw-bold text-success">KE</label><select class="form-select" id="tfTo"></select></div>
-        </div>
-        <div class="mb-3"><label class="small fw-bold">Nominal</label><input type="number" class="form-control text-center fw-bold" id="tfAmt" placeholder="0"></div>
-        <button class="btn btn-dark w-100 fw-bold" onclick="simpanTransfer()">Kirim</button>
-    </div></div></div></div>
-
-    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
-        <h5 class="fw-bold mb-3">Buat Target</h5>
-        <input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang">
-        <input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target">
-        <button class="btn btn-success w-100" onclick="simpanGoal()">Simpan</button>
-    </div></div></div></div>
-    
-    <div class="modal fade" id="modalNabung" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
-        <h6 class="text-center mb-3">Nabung ke <span id="lblTargetName" class="text-primary fw-bold"></span></h6>
-        <input type="hidden" id="targetIdHide">
-        <div class="mb-2"><label>Ambil Dari</label><select class="form-select" id="srcWallet"></select></div>
-        <div class="mb-3"><label>Jumlah</label><input type="number" class="form-control" id="saveAmount"></div>
-        <button class="btn btn-success w-100" onclick="prosesNabung()">Simpan</button>
-    </div></div></div></div>
+    <div class="modal fade" id="modalTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-4">Catat Transaksi</h5><div class="d-flex gap-2 mb-3"><input type="radio" class="btn-check" name="trxType" id="exp" value="expense" checked onchange="updateCat()"><label class="btn btn-outline-danger w-50" for="exp" id="lblExp">Keluar</label><input type="radio" class="btn-check" name="trxType" id="inc" value="income" onchange="updateCat()"><label class="btn btn-outline-success w-50" for="inc" id="lblInc">Masuk</label></div><div class="mb-2"><label>Dompet</label><select class="form-select" id="trxWallet"></select></div><div class="mb-2"><label>Nominal</label><input type="number" class="form-control" id="trxAmount"></div><div class="mb-2"><label>Kategori</label><select class="form-select" id="trxCategory"></select></div><div class="mb-3"><label>Catatan</label><input type="text" class="form-control" id="trxDesc"></div><button class="btn btn-primary w-100" onclick="simpanTransaksi()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalAddWallet" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Tambah Dompet</h5><input type="hidden" id="editWId"><div class="mb-2"><label>Nama</label><input type="text" class="form-control" id="wName"></div><div class="mb-3"><label>Saldo</label><input type="number" class="form-control" id="wBalance"></div><button class="btn btn-primary w-100" onclick="simpanDompet()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalTransfer" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold text-center mb-3">Transfer</h5><div class="d-flex gap-2 mb-2"><div class="w-50"><label class="small fw-bold text-danger">DARI</label><select class="form-select" id="tfFrom"></select></div><div class="w-50"><label class="small fw-bold text-success">KE</label><select class="form-select" id="tfTo"></select></div></div><div class="mb-3"><label>Nominal</label><input type="number" class="form-control text-center fw-bold" id="tfAmt"></div><button class="btn btn-dark w-100" onclick="simpanTransfer()">Kirim</button></div></div></div></div>
+    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Buat Target</h5><input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang"><input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target"><button class="btn btn-success w-100" onclick="simpanGoal()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalNabung" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h6 class="text-center mb-3">Nabung ke <span id="lblTargetName" class="text-primary fw-bold"></span></h6><input type="hidden" id="targetIdHide"><div class="mb-2"><label>Ambil Dari</label><select class="form-select" id="srcWallet"></select></div><div class="mb-3"><label>Jumlah</label><input type="number" class="form-control" id="saveAmount"></div><button class="btn btn-success w-100" onclick="prosesNabung()">Simpan</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -228,178 +131,122 @@
         const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
         let currentUser=null, myWallets=[];
+        
+        let totalWallet = 0;
+        let totalGoal = 0;
+        let goalDetails = []; // Array buat nyimpen nama target & duitnya
 
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
             currentUser = session.user;
-            document.getElementById('userEmail').innerText = currentUser.email;
             updateCat();
             await loadAll();
         }
 
         async function loadAll() {
-            await loadWallets();      // Load dompet dulu biar namanya ada di memori
-            await loadTransactions(); // Baru load transaksi (ANTI ERROR)
-            await loadGoals();
+            await loadWallets(); 
+            await loadGoals(); 
+            await loadTransactions();
+            
+            // LOGIC RENDER RINCIAN ASET (Biar gak bingung)
+            const grandTotal = totalWallet + totalGoal;
+            document.getElementById('totalHarta').innerText = fmt(grandTotal);
+
+            const detailBox = document.getElementById('detailAsetList');
+            let html = `
+                <div class="asset-row">
+                    <span>💵 Sisa di Dompet</span>
+                    <span class="fw-bold">${fmt(totalWallet)}</span>
+                </div>
+            `;
+
+            // Loop semua target yang ada isinya
+            if(goalDetails.length > 0) {
+                goalDetails.forEach(g => {
+                    html += `
+                    <div class="asset-row">
+                        <span>🎯 ${g.name}</span>
+                        <span class="fw-bold">${fmt(g.amount)}</span>
+                    </div>`;
+                });
+            } else {
+                html += `<div class="asset-row opacity-50"><span>🎯 Belum ada tabungan</span><span>Rp 0</span></div>`;
+            }
+
+            detailBox.innerHTML = html;
         }
 
-        // --- DOMPET (TAMPIL DI KANAN) ---
         async function loadWallets() {
             const { data } = await _supabase.from('wallets').select('*').order('created_at');
             myWallets = data || [];
-            
             const list = document.getElementById('walletList');
             const sels = [document.getElementById('trxWallet'), document.getElementById('tfFrom'), document.getElementById('tfTo'), document.getElementById('srcWallet')];
-            
             list.innerHTML = ''; sels.forEach(s => s.innerHTML = '');
-            let total = 0;
-
+            
+            totalWallet = 0;
             if(myWallets.length === 0) list.innerHTML = '<div class="text-center py-3 small text-muted">Belum ada dompet</div>';
 
             myWallets.forEach(w => {
-                total += parseFloat(w.balance);
-                // Tampilan Kartu Dompet di Sidebar
-                list.innerHTML += `
-                <div class="wallet-item">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="wallet-icon"><i class="fas fa-wallet"></i></div>
-                        <div>
-                            <h6 class="fw-bold mb-0" style="font-size:0.9rem">${w.name}</h6>
-                            <small class="text-muted">${fmt(w.balance)}</small>
-                        </div>
-                    </div>
-                    <div>
-                        <i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editD(${w.id})"></i>
-                        <i class="fas fa-trash text-danger small cursor-pointer" onclick="hapusD(${w.id}, '${w.name}')"></i>
-                    </div>
-                </div>`;
-                
+                totalWallet += parseFloat(w.balance);
+                list.innerHTML += `<div class="wallet-item"><div class="d-flex align-items-center gap-3"><div class="wallet-icon"><i class="fas fa-wallet"></i></div><div><h6 class="fw-bold mb-0" style="font-size:0.9rem">${w.name}</h6><small class="text-muted">${fmt(w.balance)}</small></div></div><div><i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editD(${w.id})"></i><i class="fas fa-trash text-danger small cursor-pointer" onclick="hapusD(${w.id}, '${w.name}')"></i></div></div>`;
                 const opt = `<option value="${w.id}">${w.name} (${fmt(w.balance)})</option>`;
                 sels.forEach(s => s.innerHTML += opt);
             });
-            document.getElementById('totalHarta').innerText = fmt(total);
-            document.getElementById('walletCount').innerText = myWallets.length + " Dompet";
+            document.getElementById('walletCount').innerText = myWallets.length + " Akun";
         }
 
-        // --- TRANSAKSI (LOGIC BARU: ANTI GAGAL MEMUAT) ---
+        async function loadGoals() {
+            const { data: goals } = await _supabase.from('goals').select('*');
+            const list = document.getElementById('goalList'); list.innerHTML = '';
+            
+            totalGoal = 0;
+            goalDetails = []; // Reset list rincian
+
+            if(goals && goals.length > 0) {
+                for(let g of goals) {
+                    const { data: trxs } = await _supabase.from('transactions').select('amount').eq('goal_id', g.id);
+                    let cur = 0; if(trxs) trxs.forEach(t => cur += t.amount);
+                    
+                    totalGoal += cur;
+                    // Simpan data buat ditampilkan di atas
+                    if(cur > 0) goalDetails.push({ name: g.name, amount: cur });
+
+                    const pct = Math.min(100, Math.round((cur/g.target_amount)*100));
+                    list.innerHTML += `<div class="mb-3"><div class="d-flex justify-content-between small fw-bold mb-1"><span>${g.name}</span><span class="text-primary">${pct}%</span></div><div class="progress mb-2"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div><div class="d-flex justify-content-between align-items-center"><small class="text-muted">${fmt(cur)} / ${fmt(g.target_amount)}</small><button class="btn btn-sm btn-light text-primary py-0" onclick="modalNabung(${g.id},'${g.name}')">+ Isi</button></div></div>`;
+                }
+            } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
+        }
+
         async function loadTransactions() {
             const list = document.getElementById('transactionList');
-            
-            // LOGIC FIX: Select '*' saja, jangan join 'wallets(name)' karena itu yg bikin error
             const { data, error } = await _supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('date', {ascending:false}).limit(20);
-
-            if(error) {
-                console.error(error);
-                list.innerHTML = '<div class="text-danger text-center py-3">Gagal memuat (Cek SQL Permission)</div>';
-                return;
-            }
-
-            list.innerHTML = '';
-            let inc=0, exp=0;
-
-            if(!data || data.length === 0) {
-                list.innerHTML = '<div class="text-center py-5 text-muted small">Belum ada transaksi</div>';
-            } else {
+            if(error) { list.innerHTML = '<div class="text-danger text-center py-3">Gagal memuat</div>'; return; }
+            list.innerHTML = ''; let inc=0, exp=0;
+            if(!data || data.length === 0) { list.innerHTML = '<div class="text-center py-5 text-muted small">Belum ada transaksi</div>'; } 
+            else {
                 data.forEach(t => {
                     if(t.type==='income') inc+=t.amount; else if(t.type==='expense') exp+=t.amount;
-                    
-                    // Manual cari nama wallet dari array myWallets (Lebih aman dari error join)
                     const wName = myWallets.find(w => w.id == t.wallet_id)?.name || 'Dompet Dihapus';
-                    
-                    let bg = 'bg-inc', icon = 'fa-arrow-down', col = 'text-success', sign = '+';
-                    if(t.type === 'expense') { bg='bg-exp'; icon='fa-arrow-up'; col='text-danger'; sign='-'; }
-                    if(t.type === 'transfer') { bg='bg-trf'; icon='fa-exchange-alt'; col='text-dark'; sign=''; }
-
-                    list.innerHTML += `
-                    <div class="trx-item">
-                        <div class="d-flex align-items-center">
-                            <div class="trx-icon-box ${bg}"><i class="fas ${icon}"></i></div>
-                            <div>
-                                <h6 class="fw-bold mb-0 text-dark">${t.category}</h6>
-                                <small class="text-muted" style="font-size:0.8rem">${new Date(t.date).toLocaleDateString()} • ${wName}</small>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <h6 class="fw-bold mb-0 ${col}">${sign} ${fmt(t.amount)}</h6>
-                            <i class="fas fa-trash text-muted opacity-25 small cursor-pointer" onclick="hapusTrx(${t.id}, ${t.wallet_id}, ${t.amount}, '${t.type}')"></i>
-                        </div>
-                    </div>`;
+                    let bg='bg-inc',icon='fa-arrow-down',col='text-success',sign='+';
+                    if(t.type==='expense'){bg='bg-exp';icon='fa-arrow-up';col='text-danger';sign='-';}
+                    if(t.type==='transfer'){bg='bg-trf';icon='fa-exchange-alt';col='text-dark';sign='';}
+                    list.innerHTML += `<div class="trx-item"><div class="d-flex align-items-center"><div class="trx-icon-box ${bg}"><i class="fas ${icon}"></i></div><div><h6 class="fw-bold mb-0 text-dark">${t.category}</h6><small class="text-muted" style="font-size:0.8rem">${new Date(t.date).toLocaleDateString()} • ${wName}</small></div></div><div class="text-end"><h6 class="fw-bold mb-0 ${col}">${sign} ${fmt(t.amount)}</h6><i class="fas fa-trash text-muted opacity-25 small cursor-pointer" onclick="hapusTrx(${t.id}, ${t.wallet_id}, ${t.amount}, '${t.type}')"></i></div></div>`;
                 });
             }
             renderChart(inc, exp);
         }
 
-        // --- GOALS (TAMPIL DI KANAN) ---
-        async function loadGoals() {
-            const { data: goals } = await _supabase.from('goals').select('*');
-            const list = document.getElementById('goalList'); list.innerHTML = '';
-            if(goals && goals.length > 0) {
-                for(let g of goals) {
-                    const { data: trxs } = await _supabase.from('transactions').select('amount').eq('goal_id', g.id);
-                    let cur = 0; if(trxs) trxs.forEach(t => cur += t.amount);
-                    const pct = Math.min(100, Math.round((cur/g.target_amount)*100));
-                    
-                    list.innerHTML += `
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between small fw-bold mb-1"><span>${g.name}</span><span class="text-primary">${pct}%</span></div>
-                        <div class="progress mb-2"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">${fmt(cur)} / ${fmt(g.target_amount)}</small>
-                            <button class="btn btn-sm btn-light text-primary py-0" onclick="modalNabung(${g.id},'${g.name}')">+ Isi</button>
-                        </div>
-                    </div>`;
-                }
-            } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
-        }
-
-        // --- CORE ACTIONS ---
-        async function simpanTransaksi() {
-            const t=document.querySelector('input[name="trxType"]:checked').value, w=document.getElementById('trxWallet').value, a=parseFloat(document.getElementById('trxAmount').value), c=document.getElementById('trxCategory').value, d=document.getElementById('trxDesc').value;
-            if(!a) return alert("Nominal?");
-            await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:t, amount:a, category:c, description:d, date:new Date().toISOString()});
-            const wa=myWallets.find(x=>x.id==w); const nb=t==='income'?parseFloat(wa.balance)+a:parseFloat(wa.balance)-a;
-            await _supabase.from('wallets').update({balance:nb}).eq('id',w);
-            bukaModal('modalTransaksi',false); document.getElementById('trxAmount').value=''; loadAll();
-        }
-
-        async function simpanTransfer() {
-            const f=document.getElementById('tfFrom').value, t=document.getElementById('tfTo').value, a=parseFloat(document.getElementById('tfAmt').value);
-            if(f==t || !a) return alert("Cek data!");
-            const wf=myWallets.find(x=>x.id==f), wt=myWallets.find(x=>x.id==t);
-            if(wf.balance<a) return alert("Saldo kurang!");
-            await _supabase.from('wallets').update({balance:parseFloat(wf.balance)-a}).eq('id',f);
-            await _supabase.from('wallets').update({balance:parseFloat(wt.balance)+a}).eq('id',t);
-            await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:f, type:'transfer', amount:a, category:'Transfer', description:'Ke '+wt.name, date:new Date().toISOString()});
-            bukaModal('modalTransfer',false); document.getElementById('tfAmt').value=''; loadAll();
-        }
-
-        async function prosesNabung() {
-            const g=document.getElementById('targetIdHide').value, w=document.getElementById('srcWallet').value, a=parseFloat(document.getElementById('saveAmount').value);
-            const wa=myWallets.find(x=>x.id==w); if(wa.balance<a) return alert("Saldo kurang!");
-            await _supabase.from('wallets').update({balance:parseFloat(wa.balance)-a}).eq('id',w);
-            await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:'expense', amount:a, category:'Tabungan', description:'Nabung Target', goal_id:g, date:new Date().toISOString()});
-            bukaModal('modalNabung',false); document.getElementById('saveAmount').value=''; loadAll();
-        }
-
-        // --- UTILS ---
+        async function simpanTransaksi() { const t=document.querySelector('input[name="trxType"]:checked').value, w=document.getElementById('trxWallet').value, a=parseFloat(document.getElementById('trxAmount').value), c=document.getElementById('trxCategory').value, d=document.getElementById('trxDesc').value; if(!a) return alert("Nominal?"); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:t, amount:a, category:c, description:d, date:new Date().toISOString()}); const wa=myWallets.find(x=>x.id==w); const nb=t==='income'?parseFloat(wa.balance)+a:parseFloat(wa.balance)-a; await _supabase.from('wallets').update({balance:nb}).eq('id',w); bukaModal('modalTransaksi',false); document.getElementById('trxAmount').value=''; loadAll(); }
+        async function simpanTransfer() { const f=document.getElementById('tfFrom').value, t=document.getElementById('tfTo').value, a=parseFloat(document.getElementById('tfAmt').value); if(f==t||!a) return alert("Cek data!"); const wf=myWallets.find(x=>x.id==f), wt=myWallets.find(x=>x.id==t); if(wf.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wf.balance)-a}).eq('id',f); await _supabase.from('wallets').update({balance:parseFloat(wt.balance)+a}).eq('id',t); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:f, type:'transfer', amount:a, category:'Transfer', description:'Ke '+wt.name, date:new Date().toISOString()}); bukaModal('modalTransfer',false); document.getElementById('tfAmt').value=''; loadAll(); }
+        async function prosesNabung() { const g=document.getElementById('targetIdHide').value, w=document.getElementById('srcWallet').value, a=parseFloat(document.getElementById('saveAmount').value); const wa=myWallets.find(x=>x.id==w); if(wa.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wa.balance)-a}).eq('id',w); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:'expense', amount:a, category:'Tabungan', description:'Nabung Target', goal_id:g, date:new Date().toISOString()}); bukaModal('modalNabung',false); document.getElementById('saveAmount').value=''; loadAll(); }
+        
         function fmt(n) { return new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR', minimumFractionDigits:0}).format(n); }
         function bukaModal(id, s=true) { const m=bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); s?m.show():m.hide(); }
         function modeTrx(t) { document.getElementById(t==='income'?'inc':'exp').checked=true; updateCat(); bukaModal('modalTransaksi'); }
         function modalNabung(id, n) { document.getElementById('targetIdHide').value=id; document.getElementById('lblTargetName').innerText=n; bukaModal('modalNabung'); }
-        function updateCat() {
-            const t = document.querySelector('input[name="trxType"]:checked').value;
-            const s = document.getElementById('trxCategory'); s.innerHTML='';
-            const o = t==='income'?['Gaji','Bonus','Lainnya']:['Makan','Jajan','Transport','Tagihan','Lainnya'];
-            o.forEach(v=>s.innerHTML+=`<option>${v}</option>`);
-            document.getElementById('lblInc').className=t==='income'?'btn btn-success w-50':'btn btn-outline-success w-50';
-            document.getElementById('lblExp').className=t==='expense'?'btn btn-danger w-50':'btn btn-outline-danger w-50';
-        }
-        function renderChart(i, e) {
-            const ctx = document.getElementById('chartArusKas').getContext('2d');
-            if(window.myChart) window.myChart.destroy();
-            window.myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Pemasukan','Pengeluaran'], datasets: [{label:'Total',data:[i,e],backgroundColor:['#16A34A','#DC2626'],borderRadius:10}] }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} } });
-        }
+        function updateCat() { const t = document.querySelector('input[name="trxType"]:checked').value; const s = document.getElementById('trxCategory'); s.innerHTML=''; const o = t==='income'?['Gaji','Bonus','Lainnya']:['Makan','Jajan','Transport','Tagihan','Lainnya']; o.forEach(v=>s.innerHTML+=`<option>${v}</option>`); document.getElementById('lblInc').className=t==='income'?'btn btn-success w-50':'btn btn-outline-success w-50'; document.getElementById('lblExp').className=t==='expense'?'btn btn-danger w-50':'btn btn-outline-danger w-50'; }
+        function renderChart(i, e) { const ctx = document.getElementById('chartArusKas').getContext('2d'); if(window.myChart) window.myChart.destroy(); window.myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Pemasukan','Pengeluaran'], datasets: [{label:'Total',data:[i,e],backgroundColor:['#16A34A','#DC2626'],borderRadius:10}] }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} } }); }
         async function hapusTrx(id, wid, amt, type) { if(!confirm("Hapus? Saldo balik.")) return; await _supabase.from('transactions').delete().eq('id',id); const w=myWallets.find(x=>x.id==wid); if(w && type!=='transfer'){ const nb=type==='income'?parseFloat(w.balance)-amt:parseFloat(w.balance)+amt; await _supabase.from('wallets').update({balance:nb}).eq('id',wid); } loadAll(); }
         async function hapusD(id, n) { if(confirm("Hapus "+n+"?")) { await _supabase.from('transactions').delete().eq('wallet_id',id); await _supabase.from('wallets').delete().eq('id',id); loadAll(); } }
         function editD(id) { const w = myWallets.find(x=>x.id==id); document.getElementById('editWId').value=w.id; document.getElementById('wName').value=w.name; document.getElementById('wBalance').value=w.balance; bukaModal('modalAddWallet'); }
