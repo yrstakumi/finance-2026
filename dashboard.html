@@ -14,7 +14,7 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); padding-bottom: 80px; }
         .navbar { background: white; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
         
-        /* CARD HEADER (Tetap V13) */
+        /* CARD HEADER (Saldo & Rincian) */
         .card-balance {
             background: linear-gradient(135deg, #0066FF 0%, #2563EB 100%);
             border-radius: 20px; padding: 25px; color: white;
@@ -61,7 +61,8 @@
                     <h1 class="fw-bold mb-0" id="totalHarta">Rp 0</h1>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-white bg-opacity-25" id="walletCount">0 Akun</span>
+                    <span class="badge bg-white bg-opacity-25" id="walletCount">...</span>
+                    <small class="d-block mt-1 opacity-75" style="font-size:0.7rem;" id="userEmail">Loading...</small>
                 </div>
             </div>
             <div class="asset-breakdown">
@@ -77,7 +78,7 @@
                     <div style="height: 250px;"><canvas id="chartArusKas"></canvas></div>
                 </div>
                 <div class="card-box">
-                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Riwayat Terakhir</h6><small class="text-primary cursor-pointer" onclick="init()">Refresh</small></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Riwayat Terakhir</h6><small class="text-primary cursor-pointer" onclick="loadAll()">Refresh</small></div>
                     <div id="transactionList" style="min-height: 200px;"><div class="text-center py-5"><div class="spinner-border text-primary"></div></div></div>
                 </div>
             </div>
@@ -113,7 +114,8 @@
     
     <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
         <h5 class="fw-bold mb-3">Kelola Target</h5>
-        <input type="hidden" id="editGId"> <input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang">
+        <input type="hidden" id="editGId"> 
+        <input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang">
         <input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target">
         <button class="btn btn-success w-100" onclick="simpanGoal()">Simpan Target</button>
     </div></div></div></div>
@@ -125,29 +127,49 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+        // --- KONFIGURASI DAN INIT ---
         const supabaseUrl = 'https://zzloutsqmpkifzijxaip.supabase.co';
         const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
         let currentUser=null, myWallets=[];
         let totalWallet = 0; let totalGoal = 0; let goalDetails = [];
 
-        async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) { window.location.href = 'index.html'; return; }
-            currentUser = session.user;
-            document.getElementById('userEmail').innerText = currentUser.email;
-            updateCat(); await loadAll();
-        }
+        // STARTUP PINTAR: Mendengarkan Perubahan Sesi (Login/Logout)
+        document.addEventListener("DOMContentLoaded", () => {
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    // Ada sesi -> Load Data
+                    console.log("Sesi ditemukan:", session.user.email);
+                    currentUser = session.user;
+                    document.getElementById('userEmail').innerText = currentUser.email;
+                    updateCat(); 
+                    loadAll();
+                } else {
+                    // Tidak ada sesi -> Tendang ke index.html
+                    console.log("Sesi tidak ditemukan, redirecting...");
+                    window.location.href = 'index.html';
+                }
+            });
+        });
 
+        // --- DATA LOADING ---
         async function loadAll() {
-            await loadWallets(); await loadGoals(); await loadTransactions();
+            console.log("Memulai loadAll...");
+            await Promise.all([loadWallets(), loadGoals(), loadTransactions()]);
+            
             const grandTotal = totalWallet + totalGoal;
             document.getElementById('totalHarta').innerText = fmt(grandTotal);
+            
             const detailBox = document.getElementById('detailAsetList');
             let html = `<div class="asset-row"><span>💵 Sisa di Dompet</span><span class="fw-bold">${fmt(totalWallet)}</span></div>`;
-            if(goalDetails.length > 0) { goalDetails.forEach(g => { html += `<div class="asset-row"><span>🎯 ${g.name}</span><span class="fw-bold">${fmt(g.amount)}</span></div>`; }); } 
-            else { html += `<div class="asset-row opacity-50"><span>🎯 Belum ada tabungan</span><span>Rp 0</span></div>`; }
+            if(goalDetails.length > 0) { 
+                goalDetails.forEach(g => { html += `<div class="asset-row"><span>🎯 ${g.name}</span><span class="fw-bold">${fmt(g.amount)}</span></div>`; }); 
+            } else { 
+                html += `<div class="asset-row opacity-50"><span>🎯 Belum ada tabungan</span><span>Rp 0</span></div>`; 
+            }
             detailBox.innerHTML = html;
+            console.log("loadAll Selesai");
         }
 
         async function loadWallets() {
@@ -171,8 +193,6 @@
             const { data: goals } = await _supabase.from('goals').select('*').order('created_at');
             const list = document.getElementById('goalList'); list.innerHTML = '';
             totalGoal = 0; goalDetails = []; 
-
-            // Simpan goals di variabel global biar bisa diakses fungsi edit
             window.myGoals = goals || [];
 
             if(goals && goals.length > 0) {
@@ -183,7 +203,6 @@
                     if(cur > 0) goalDetails.push({ name: g.name, amount: cur });
                     const pct = Math.min(100, Math.round((cur/g.target_amount)*100));
                     
-                    // UPDATE: Nambah tombol Edit (Pensil) dan Hapus (Sampah) di header Target
                     list.innerHTML += `
                     <div class="mb-3 border-bottom pb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -203,47 +222,6 @@
             } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
         }
 
-        // FUNGSI BARU BUAT EDIT GOAL
-        function editGoal(id) {
-            const g = window.myGoals.find(item => item.id == id);
-            if(g) {
-                document.getElementById('editGId').value = g.id;
-                document.getElementById('gName').value = g.name;
-                document.getElementById('gTarget').value = g.target_amount;
-                bukaModal('modalGoal');
-            }
-        }
-
-        async function hapusGoal(id, name) {
-            if(confirm(`Hapus target "${name}"?`)) {
-                await _supabase.from('goals').delete().eq('id', id);
-                // Transaksi tabungan terkait akan tetap ada, tapi goal_id jadi null (aman)
-                loadAll();
-            }
-        }
-
-        async function simpanGoal() { 
-            const id = document.getElementById('editGId').value;
-            const n = document.getElementById('gName').value;
-            const t = document.getElementById('gTarget').value;
-            
-            if(id) {
-                // Mode Update
-                await _supabase.from('goals').update({name: n, target_amount: t}).eq('id', id);
-            } else {
-                // Mode Baru
-                await _supabase.from('goals').insert({user_id:currentUser.id, name: n, target_amount: t}); 
-            }
-            
-            bukaModal('modalGoal', false); 
-            // Reset Form
-            document.getElementById('editGId').value = '';
-            document.getElementById('gName').value = '';
-            document.getElementById('gTarget').value = '';
-            loadAll(); 
-        }
-
-        // --- SISA KODINGAN LAMA (TIDAK BERUBAH) ---
         async function loadTransactions() {
             const list = document.getElementById('transactionList');
             const { data, error } = await _supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('date', {ascending:false}).limit(20);
@@ -263,10 +241,19 @@
             renderChart(inc, exp);
         }
 
+        // --- AKSI & FORM ---
+        function editGoal(id) {
+            const g = window.myGoals.find(item => item.id == id);
+            if(g) { document.getElementById('editGId').value = g.id; document.getElementById('gName').value = g.name; document.getElementById('gTarget').value = g.target_amount; bukaModal('modalGoal'); }
+        }
+        async function hapusGoal(id, name) { if(confirm(`Hapus target "${name}"?`)) { await _supabase.from('goals').delete().eq('id', id); loadAll(); } }
+        async function simpanGoal() { const id=document.getElementById('editGId').value,n=document.getElementById('gName').value,t=document.getElementById('gTarget').value; if(id) await _supabase.from('goals').update({name:n,target_amount:t}).eq('id',id); else await _supabase.from('goals').insert({user_id:currentUser.id,name:n,target_amount:t}); bukaModal('modalGoal',false); document.getElementById('editGId').value='';document.getElementById('gName').value='';document.getElementById('gTarget').value='';loadAll(); }
+
         async function simpanTransaksi() { const t=document.querySelector('input[name="trxType"]:checked').value, w=document.getElementById('trxWallet').value, a=parseFloat(document.getElementById('trxAmount').value), c=document.getElementById('trxCategory').value, d=document.getElementById('trxDesc').value; if(!a) return alert("Nominal?"); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:t, amount:a, category:c, description:d, date:new Date().toISOString()}); const wa=myWallets.find(x=>x.id==w); const nb=t==='income'?parseFloat(wa.balance)+a:parseFloat(wa.balance)-a; await _supabase.from('wallets').update({balance:nb}).eq('id',w); bukaModal('modalTransaksi',false); document.getElementById('trxAmount').value=''; loadAll(); }
         async function simpanTransfer() { const f=document.getElementById('tfFrom').value, t=document.getElementById('tfTo').value, a=parseFloat(document.getElementById('tfAmt').value); if(f==t||!a) return alert("Cek data!"); const wf=myWallets.find(x=>x.id==f), wt=myWallets.find(x=>x.id==t); if(wf.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wf.balance)-a}).eq('id',f); await _supabase.from('wallets').update({balance:parseFloat(wt.balance)+a}).eq('id',t); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:f, type:'transfer', amount:a, category:'Transfer', description:'Ke '+wt.name, date:new Date().toISOString()}); bukaModal('modalTransfer',false); document.getElementById('tfAmt').value=''; loadAll(); }
         async function prosesNabung() { const g=document.getElementById('targetIdHide').value, w=document.getElementById('srcWallet').value, a=parseFloat(document.getElementById('saveAmount').value); const wa=myWallets.find(x=>x.id==w); if(wa.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wa.balance)-a}).eq('id',w); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:'expense', amount:a, category:'Tabungan', description:'Nabung Target', goal_id:g, date:new Date().toISOString()}); bukaModal('modalNabung',false); document.getElementById('saveAmount').value=''; loadAll(); }
         
+        // --- UTILS ---
         function fmt(n) { return new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR', minimumFractionDigits:0}).format(n); }
         function bukaModal(id, s=true) { const m=bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); s?m.show():m.hide(); }
         function modeTrx(t) { document.getElementById(t==='income'?'inc':'exp').checked=true; updateCat(); bukaModal('modalTransaksi'); }
@@ -277,34 +264,13 @@
         async function hapusD(id, n) { if(confirm("Hapus "+n+"?")) { await _supabase.from('transactions').delete().eq('wallet_id',id); await _supabase.from('wallets').delete().eq('id',id); loadAll(); } }
         function editD(id) { const w = myWallets.find(x=>x.id==id); document.getElementById('editWId').value=w.id; document.getElementById('wName').value=w.name; document.getElementById('wBalance').value=w.balance; bukaModal('modalAddWallet'); }
         async function simpanDompet() { const id=document.getElementById('editWId').value, n=document.getElementById('wName').value, b=document.getElementById('wBalance').value; if(id) await _supabase.from('wallets').update({name:n,balance:b}).eq('id',id); else await _supabase.from('wallets').insert({user_id:currentUser.id,name:n,balance:b||0}); bukaModal('modalAddWallet',false); document.getElementById('editWId').value=''; loadAll(); }
-        // GANTI BAGIAN INI DI dashboard.html
-// --- GANTI BAGIAN INIT & LOGOUT DI BAWAH JADI INI ---
-
-        // LOGOUT (Pake kode rahasia ?logout=true)
+        
+        // --- LOGOUT AMAN ---
         document.getElementById('btnLogout').addEventListener('click', async () => { 
             await _supabase.auth.signOut(); 
             localStorage.clear();
             window.location.href = 'index.html?logout=true'; 
         });
-
-        // INIT PINTAR (Menunggu Supabase Siap Dulu)
-        document.addEventListener("DOMContentLoaded", () => {
-            // Pasang pendengar: Kalau status login berubah/siap, baru jalan
-            _supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    // User ada! Load data sekarang
-                    currentUser = session.user;
-                    document.getElementById('userEmail').innerText = currentUser.email;
-                    updateCat();
-                    loadAll(); // <-- INI YANG BIKIN DATA MUNCUL OTOMATIS
-                } else {
-                    // Gak ada user, tendang ke login
-                    window.location.href = 'index.html';
-                }
-            });
-        });
-        
-        // Hapus baris "init();" yang lama di paling bawah
     </script>
 </body>
 </html>
