@@ -78,14 +78,17 @@
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0 text-primary">Dompet Saya</h6><button class="btn btn-sm btn-primary rounded-pill px-3" onclick="bukaModal('modalAddWallet')">+ Baru</button></div>
                     <div id="walletList"></div>
                 </div>
+                
                 <div class="card-box">
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Target Tabungan</h6><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="bukaModal('modalGoal')">+ Target</button></div>
                     <div id="goalList"></div>
                 </div>
+
                 <div class="card-box border-danger border-opacity-25" style="background: #FFF5F5;">
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0 text-danger">Cicilan & Hutang</h6><button class="btn btn-sm btn-outline-danger rounded-pill" onclick="bukaModal('modalDebt')">+ Cicilan</button></div>
                     <div id="debtList"></div>
                 </div>
+
                 <div class="card-box">
                     <h6 class="fw-bold mb-3">Aksi Cepat</h6>
                     <div class="d-grid gap-2">
@@ -144,20 +147,36 @@
             detailBox.innerHTML = html;
         }
 
+        // --- UPDATE 1: FITUR TOTAL DI CICILAN ---
         async function loadDebts() {
             const { data } = await _supabase.from('debts').select('*').order('created_at');
             debtsData = data || [];
             const list = document.getElementById('debtList'); list.innerHTML = '';
             
+            let sumTotalDebt = 0;
+            let sumSisaDebt = 0;
+
             if(data && data.length > 0) {
                 data.forEach(d => {
+                    sumTotalDebt += d.total_amount;
+                    const sisa = Math.max(0, d.total_amount - d.paid_amount);
+                    sumSisaDebt += sisa;
+
                     const pct = Math.min(100, Math.round((d.paid_amount/d.total_amount)*100));
                     const isLunas = pct >= 100;
-                    const sisa = Math.max(0, d.total_amount - d.paid_amount);
+                    
                     let actionBtn = isLunas ? `<button class="btn btn-sm btn-outline-dark py-0" onclick="ulangiCicilan(${d.id}, '${d.name}')" title="Reset ke 0%"><i class="fas fa-sync-alt me-1"></i>Ulangi</button>` : `<button class="btn btn-sm btn-light text-danger py-0 fw-bold" onclick="modalBayarCicilan(${d.id},'${d.name}')">+ Bayar</button>`;
 
                     list.innerHTML += `<div class="mb-3 border-bottom pb-2"><div class="d-flex justify-content-between align-items-center mb-1"><span class="small fw-bold ${isLunas ? 'text-success' : 'text-danger'}">${d.name} <span class="text-dark">${pct}%</span></span><div><i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editDebt(${d.id})"></i><i class="fas fa-trash text-muted small cursor-pointer" onclick="hapusDebt(${d.id}, '${d.name}')"></i></div></div><div class="progress mb-2 progress-cicilan" style="height:6px"><div class="progress-bar progress-bar-cicilan ${isLunas ? 'bg-success' : ''}" style="width:${pct}%"></div></div><div class="d-flex justify-content-between align-items-center"><small class="text-muted" style="font-size:0.7rem">Sisa: ${fmt(sisa)}</small>${actionBtn}</div></div>`;
                 });
+
+                // TAMBAHAN: TOTAL DI BAWAH
+                list.innerHTML += `
+                <div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold text-danger" style="font-size: 0.8rem;">
+                    <span>Total Hutang: ${fmt(sumTotalDebt)}</span>
+                    <span>Sisa: ${fmt(sumSisaDebt)}</span>
+                </div>`;
+
             } else { list.innerHTML = '<div class="text-center text-muted small py-2">Tidak ada cicilan</div>'; }
         }
 
@@ -222,7 +241,6 @@
             renderChart(inc, exp);
         }
 
-        // --- FITUR DOWNLOAD PDF (UPDATE: ADA TARGET TABUNGAN) ---
         async function downloadPDF() {
             if(currentTrxData.length === 0) return alert("Data kosong mas.");
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
@@ -237,7 +255,6 @@
 
             doc.autoTable({ startY: 40, head: [['RINGKASAN', 'NILAI']], body: [['Saldo Awal (Estimasi)', fmt(saldoAwal)], ['Total Pemasukan', fmt(totalMasuk)], ['Total Pengeluaran', fmt(totalKeluar)], ['SALDO AKHIR (Real)', fmt(totalWallet)]], theme: 'striped', headStyles: {fillColor: [0, 102, 255]} });
 
-            // --- BAGIAN BARU: TARGET TABUNGAN ---
             let goalsBody = [];
             if(goalDetails.length > 0) {
                 goalDetails.forEach(g => {
@@ -250,7 +267,6 @@
                  doc.autoTable({ startY: doc.lastAutoTable.finalY + 15, head: [['Tujuan', 'Target', 'Terkumpul', 'Persen']], body: goalsBody, theme: 'grid', headStyles: {fillColor: [25, 135, 84]} });
             }
 
-            // CICILAN
             let debtsBody = [];
             debtsData.forEach(d => {
                 const sisa = Math.max(0, d.total_amount - d.paid_amount);
@@ -260,7 +276,6 @@
             if(debtsBody.length > 0) { doc.autoTable({ startY: doc.lastAutoTable.finalY + 15, head: [['Nama', 'Total', 'Bayar', 'Sisa', 'Status']], body: debtsBody, theme: 'grid', headStyles: {fillColor: [220, 53, 69]} }); }
             else { doc.text("(Tidak ada data cicilan)", 14, doc.lastAutoTable.finalY + 20); doc.lastAutoTable.finalY += 10; }
 
-            // TRANSAKSI
             let trxBody = [];
             currentTrxData.forEach(t => {
                 const wName = myWallets.find(w => w.id == t.wallet_id)?.name || '-';
@@ -274,7 +289,6 @@
             doc.save(`Laporan_${document.getElementById('monthLabel').innerText}.pdf`);
         }
 
-        // --- FITUR DOWNLOAD CSV (UPDATE: ADA TARGET TABUNGAN) ---
         function downloadCSV() {
             if(currentTrxData.length === 0) return alert("Data kosong mas.");
             let totalMasuk = 0, totalKeluar = 0;
@@ -284,7 +298,6 @@
             let csv = `LAPORAN KEUANGAN - ${document.getElementById('monthLabel').innerText}\nUser: ${currentUser.email}\n\n`;
             csv += `RINGKASAN,NILAI\nSaldo Awal,${saldoAwal}\nTotal Masuk,${totalMasuk}\nTotal Keluar,${totalKeluar}\nSaldo Akhir,${totalWallet}\n\n`;
             
-            // CSV TARGET TABUNGAN
             csv += `TARGET TABUNGAN,TARGET,TERKUMPUL,PERSEN\n`;
              if(goalDetails.length > 0) {
                 goalDetails.forEach(g => {
@@ -296,7 +309,6 @@
             } else { csv += `(Tidak ada target),,,\n`; }
             csv += `\n`;
 
-            // CSV CICILAN
             csv += `CICILAN,TOTAL,BAYAR,SISA,STATUS\n`;
             debtsData.forEach(d => {
                 const sisa = Math.max(0, d.total_amount - d.paid_amount);
@@ -320,10 +332,15 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
+        // --- UPDATE 2: FITUR TOTAL DI TARGET ---
         async function loadGoals() {
             const { data: goals } = await _supabase.from('goals').select('*').order('created_at');
             const list = document.getElementById('goalList'); list.innerHTML = '';
             totalGoal = 0; goalDetails = []; window.myGoals = goals || [];
+            
+            let sumTarget = 0;
+            let sumCollected = 0;
+
             if(goals && goals.length > 0) {
                 for(let g of goals) {
                     const { data: trxs } = await _supabase.from('transactions').select('amount').eq('goal_id', g.id);
@@ -331,8 +348,20 @@
                     totalGoal += cur;
                     if(cur > 0) goalDetails.push({ name: g.name, amount: cur });
                     const pct = Math.min(100, Math.round((cur/g.target_amount)*100));
+                    
+                    sumTarget += g.target_amount;
+                    sumCollected += cur;
+
                     list.innerHTML += `<div class="mb-3 border-bottom pb-2"><div class="d-flex justify-content-between align-items-center mb-1"><span class="small fw-bold">${g.name} <span class="text-primary">${pct}%</span></span><div><i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editGoal(${g.id})"></i><i class="fas fa-trash text-danger small cursor-pointer" onclick="hapusGoal(${g.id}, '${g.name}')"></i></div></div><div class="progress mb-2"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div><div class="d-flex justify-content-between align-items-center"><small class="text-muted">${fmt(cur)} / ${fmt(g.target_amount)}</small><button class="btn btn-sm btn-light text-primary py-0" onclick="modalNabung(${g.id},'${g.name}')">+ Isi</button></div></div>`;
                 }
+
+                // TAMBAHAN: TOTAL DI BAWAH
+                list.innerHTML += `
+                <div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold" style="font-size: 0.8rem;">
+                    <span>Target: ${fmt(sumTarget)}</span>
+                    <span class="text-primary">Terkumpul: ${fmt(sumCollected)}</span>
+                </div>`;
+
             } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
         }
 
