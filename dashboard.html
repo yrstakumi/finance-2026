@@ -14,24 +14,16 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); padding-bottom: 80px; }
         .navbar { background: white; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
         
-        /* CARD HEADER (Saldo & Rincian) */
+        /* CARD HEADER */
         .card-balance {
             background: linear-gradient(135deg, #0066FF 0%, #2563EB 100%);
             border-radius: 20px; padding: 25px; color: white;
             box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
             position: relative; overflow: hidden; margin-bottom: 25px;
         }
-        .card-balance::after {
-            content: ''; position: absolute; right: -20px; top: -50px;
-            width: 200px; height: 200px; background: rgba(255,255,255,0.1);
-            border-radius: 50%; pointer-events: none;
-        }
+        .card-balance::after { content: ''; position: absolute; right: -20px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none; }
         
-        .asset-breakdown {
-            background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 15px;
-            margin-top: 20px; font-size: 0.85rem; backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .asset-breakdown { background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 15px; margin-top: 20px; font-size: 0.85rem; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
         .asset-row { display: flex; justify-content: space-between; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .asset-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
@@ -39,14 +31,15 @@
         .wallet-item { background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .wallet-icon { width: 40px; height: 40px; border-radius: 10px; background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .trx-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F3F4F6; }
-        .trx-icon-box { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 15px; }
+        .trx-icon-box { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
+        
+        .progress-cicilan { background-color: #E5E7EB; }
+        .progress-bar-cicilan { background-color: #DC2626; } 
+
         .bg-inc { background: #DCFCE7; color: #16A34A; } .bg-exp { background: #FEE2E2; color: #DC2626; } .bg-trf { background: #E0F2FE; color: #0284C7; }
         .btn-float { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 24px; border: none; box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4); display: grid; place-items: center; z-index: 999; }
-        
-        /* Navigasi Bulan */
         .month-nav { display: flex; align-items: center; gap: 8px; background: #F3F4F6; padding: 4px 8px; border-radius: 20px; }
         .btn-nav { width: 28px; height: 28px; border-radius: 50%; border: none; background: white; color: #374151; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .btn-nav:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -79,27 +72,22 @@
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="card-box">
-                    <div class="d-flex justify-content-between mb-3">
-                        <h6 class="fw-bold">Arus Kas</h6>
-                        <span class="badge bg-primary text-white" id="chartLabel">Bulan Ini</span>
-                    </div>
+                    <div class="d-flex justify-content-between mb-3"><h6 class="fw-bold">Arus Kas</h6><span class="badge bg-primary text-white" id="chartLabel">Bulan Ini</span></div>
                     <div style="height: 250px;"><canvas id="chartArusKas"></canvas></div>
                 </div>
 
                 <div class="card-box">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0">Riwayat</h6>
-                        
+                        <h6 class="fw-bold m-0">Riwayat Transaksi</h6>
                         <div class="d-flex align-items-center gap-2">
                             <div class="month-nav">
                                 <button class="btn-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
                                 <span class="small fw-bold px-1" id="monthLabel" style="min-width: 90px; text-align: center;">...</span>
                                 <button class="btn-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                             </div>
-                            <button class="btn btn-sm btn-success rounded-circle" style="width: 32px; height: 32px;" onclick="downloadCSV()" title="Download Excel"><i class="fas fa-file-csv"></i></button>
+                            <button class="btn btn-sm btn-success rounded-circle" style="width: 32px; height: 32px;" onclick="downloadCSV()" title="Download Laporan Detail"><i class="fas fa-file-csv"></i></button>
                         </div>
                     </div>
-
                     <div id="transactionList" style="min-height: 200px;"><div class="text-center py-5"><div class="spinner-border text-primary"></div></div></div>
                 </div>
             </div>
@@ -113,6 +101,14 @@
                 <div class="card-box">
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Target Tabungan</h6><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="bukaModal('modalGoal')">+ Target</button></div>
                     <div id="goalList"></div>
+                </div>
+
+                <div class="card-box border-danger border-opacity-25" style="background: #FFF5F5;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold m-0 text-danger">Cicilan & Hutang</h6>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill" onclick="bukaModal('modalDebt')">+ Cicilan</button>
+                    </div>
+                    <div id="debtList"></div>
                 </div>
 
                 <div class="card-box">
@@ -129,11 +125,13 @@
 
     <button class="btn-float" onclick="bukaModal('modalTransaksi')"><i class="fas fa-plus"></i></button>
 
-    <div class="modal fade" id="modalTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-4">Catat Transaksi</h5><div class="d-flex gap-2 mb-3"><input type="radio" class="btn-check" name="trxType" id="exp" value="expense" checked onchange="updateCat()"><label class="btn btn-outline-danger w-50" for="exp" id="lblExp">Keluar</label><input type="radio" class="btn-check" name="trxType" id="inc" value="income" onchange="updateCat()"><label class="btn btn-outline-success w-50" for="inc" id="lblInc">Masuk</label></div><div class="mb-2"><label>Dompet</label><select class="form-select" id="trxWallet"></select></div><div class="mb-2"><label>Nominal</label><input type="number" class="form-control" id="trxAmount"></div><div class="mb-2"><label>Kategori</label><select class="form-select" id="trxCategory"></select></div><div class="mb-3"><label>Catatan</label><input type="text" class="form-control" id="trxDesc"></div><button class="btn btn-primary w-100" onclick="simpanTransaksi()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-4">Catat Transaksi</h5><div class="d-flex gap-2 mb-3"><input type="radio" class="btn-check" name="trxType" id="exp" value="expense" checked onchange="updateCat()"><label class="btn btn-outline-danger w-50" for="exp" id="lblExp">Keluar</label><input type="radio" class="btn-check" name="trxType" id="inc" value="income" onchange="updateCat()"><label class="btn btn-outline-success w-50" for="inc" id="lblInc">Masuk</label></div><div class="mb-2"><label>Dompet</label><select class="form-select" id="trxWallet"></select></div><div class="mb-2"><label>Nominal</label><input type="number" class="form-control" id="trxAmount"></div><div class="mb-2"><label>Kategori</label><select class="form-select" id="trxCategory"></select></div><div class="mb-3"><label>Catatan (Wajib Diisi)</label><input type="text" class="form-control" id="trxDesc" placeholder="Contoh: Beli Bensin, Bayar Motor"></div><button class="btn btn-primary w-100" onclick="simpanTransaksi()">Simpan</button></div></div></div></div>
     <div class="modal fade" id="modalAddWallet" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Kelola Dompet</h5><input type="hidden" id="editWId"><div class="mb-2"><label>Nama</label><input type="text" class="form-control" id="wName"></div><div class="mb-3"><label>Saldo</label><input type="number" class="form-control" id="wBalance"></div><button class="btn btn-primary w-100" onclick="simpanDompet()">Simpan</button></div></div></div></div>
     <div class="modal fade" id="modalTransfer" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold text-center mb-3">Transfer</h5><div class="d-flex gap-2 mb-2"><div class="w-50"><label class="small fw-bold text-danger">DARI</label><select class="form-select" id="tfFrom"></select></div><div class="w-50"><label class="small fw-bold text-success">KE</label><select class="form-select" id="tfTo"></select></div></div><div class="mb-3"><label>Nominal</label><input type="number" class="form-control text-center fw-bold" id="tfAmt"></div><button class="btn btn-dark w-100" onclick="simpanTransfer()">Kirim</button></div></div></div></div>
-    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Kelola Target</h5><input type="hidden" id="editGId"><input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang"><input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target"><button class="btn btn-success w-100" onclick="simpanGoal()">Simpan Target</button></div></div></div></div>
+    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Kelola Target Tabungan</h5><input type="hidden" id="editGId"><input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang"><input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target"><button class="btn btn-success w-100" onclick="simpanGoal()">Simpan Target</button></div></div></div></div>
+    <div class="modal fade" id="modalDebt" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3 text-danger">Tambah Cicilan Baru</h5><input type="text" class="form-control mb-2" id="dName" placeholder="Nama Cicilan (Cth: Motor)"><input type="number" class="form-control mb-3" id="dTotal" placeholder="Total Hutang"><button class="btn btn-danger w-100" onclick="simpanDebt()">Buat Cicilan</button></div></div></div></div>
     <div class="modal fade" id="modalNabung" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h6 class="text-center mb-3">Nabung ke <span id="lblTargetName" class="text-primary fw-bold"></span></h6><input type="hidden" id="targetIdHide"><div class="mb-2"><label>Ambil Dari</label><select class="form-select" id="srcWallet"></select></div><div class="mb-3"><label>Jumlah</label><input type="number" class="form-control" id="saveAmount"></div><button class="btn btn-success w-100" onclick="prosesNabung()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalBayarCicilan" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h6 class="text-center mb-3">Bayar Cicilan <span id="lblDebtName" class="text-danger fw-bold"></span></h6><input type="hidden" id="debtIdHide"><div class="mb-2"><label>Bayar Pakai</label><select class="form-select" id="srcWalletDebt"></select></div><div class="mb-3"><label>Nominal Bayar</label><input type="number" class="form-control" id="payDebtAmount"></div><button class="btn btn-danger w-100" onclick="prosesBayarCicilan()">Bayar Sekarang</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -146,10 +144,7 @@
         
         let currentUser=null, myWallets=[];
         let totalWallet = 0; let totalGoal = 0; let goalDetails = [];
-        
-        // --- VARIABEL TIME MACHINE ---
-        let viewDate = new Date(); // Default: Bulan Hari Ini
-        let currentTrxData = []; // Buat nyimpen data yang mau di-download CSV
+        let viewDate = new Date(); let currentTrxData = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             _supabase.auth.onAuthStateChange((event, session) => {
@@ -162,13 +157,9 @@
         });
 
         async function loadAll() {
-            // Load Harta (Dompet & Goal) Tetap Realtime (Gak Pake Filter Tanggal)
-            await Promise.all([loadWallets(), loadGoals()]);
-            
-            // Load Transaksi PAKE Filter Tanggal (Bulan yang dipilih)
+            await Promise.all([loadWallets(), loadGoals(), loadDebts()]);
             await loadTransactions();
             
-            // Render Total Harta
             const grandTotal = totalWallet + totalGoal;
             document.getElementById('totalHarta').innerText = fmt(grandTotal);
             
@@ -179,81 +170,41 @@
             detailBox.innerHTML = html;
         }
 
-        // --- NAVIGASI BULAN (TIME MACHINE) ---
-        function changeMonth(offset) {
-            // Geser bulan
-            viewDate.setMonth(viewDate.getMonth() + offset);
-            loadTransactions(); // Reload cuma transaksinya aja
-        }
-
-        async function loadTransactions() {
-            const list = document.getElementById('transactionList');
-            list.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-
-            // 1. Update Label Bulan di UI
-            const monthName = viewDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            document.getElementById('monthLabel').innerText = monthName;
-            document.getElementById('chartLabel').innerText = monthName;
-
-            // 2. Hitung Tanggal Awal & Akhir Bulan Terpilih
-            const startStr = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString();
-            const endStr = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
-
-            // 3. Query Database dengan Filter Tanggal (gte = lebih dari tgl 1, lte = kurang dari tgl 31)
-            const { data, error } = await _supabase.from('transactions')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .gte('date', startStr) // Filter Mulai
-                .lte('date', endStr)   // Filter Akhir
-                .order('date', {ascending:false});
-
-            if(error) { list.innerHTML = '<div class="text-danger text-center">Gagal memuat</div>'; return; }
+        async function loadDebts() {
+            const { data } = await _supabase.from('debts').select('*').order('created_at');
+            const list = document.getElementById('debtList'); list.innerHTML = '';
             
-            currentTrxData = data || []; // Simpan buat CSV
-
-            list.innerHTML = ''; let inc=0, exp=0;
-            if(!data || data.length === 0) { list.innerHTML = '<div class="text-center py-5 text-muted small">Belum ada transaksi di bulan ini</div>'; } 
-            else {
-                data.forEach(t => {
-                    if(t.type==='income') inc+=t.amount; else if(t.type==='expense') exp+=t.amount;
-                    const wName = myWallets.find(w => w.id == t.wallet_id)?.name || 'Dompet Dihapus';
-                    let bg='bg-inc',icon='fa-arrow-down',col='text-success',sign='+';
-                    if(t.type==='expense'){bg='bg-exp';icon='fa-arrow-up';col='text-danger';sign='-';}
-                    if(t.type==='transfer'){bg='bg-trf';icon='fa-exchange-alt';col='text-dark';sign='';}
-                    list.innerHTML += `<div class="trx-item"><div class="d-flex align-items-center"><div class="trx-icon-box ${bg}"><i class="fas ${icon}"></i></div><div><h6 class="fw-bold mb-0 text-dark">${t.category}</h6><small class="text-muted" style="font-size:0.8rem">${new Date(t.date).toLocaleDateString()} • ${wName}</small></div></div><div class="text-end"><h6 class="fw-bold mb-0 ${col}">${sign} ${fmt(t.amount)}</h6><i class="fas fa-trash text-muted opacity-25 small cursor-pointer" onclick="hapusTrx(${t.id}, ${t.wallet_id}, ${t.amount}, '${t.type}')"></i></div></div>`;
+            if(data && data.length > 0) {
+                data.forEach(d => {
+                    const pct = Math.min(100, Math.round((d.paid_amount/d.total_amount)*100));
+                    const isLunas = pct >= 100;
+                    
+                    list.innerHTML += `
+                    <div class="mb-3 border-bottom pb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-danger">${d.name} <span class="text-dark">${pct}%</span></span>
+                            <i class="fas fa-trash text-muted small cursor-pointer" onclick="hapusDebt(${d.id}, '${d.name}')"></i>
+                        </div>
+                        <div class="progress mb-2 progress-cicilan" style="height:6px">
+                            <div class="progress-bar progress-bar-cicilan ${isLunas ? 'bg-success' : ''}" style="width:${pct}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted" style="font-size:0.7rem">Sisa: ${fmt(Math.max(0, d.total_amount - d.paid_amount))}</small>
+                            ${isLunas ? 
+                                '<span class="badge bg-success" style="font-size:0.7rem">LUNAS ✅</span>' : 
+                                `<button class="btn btn-sm btn-light text-danger py-0 fw-bold" onclick="modalBayarCicilan(${d.id},'${d.name}')">+ Bayar</button>`
+                            }
+                        </div>
+                    </div>`;
                 });
-            }
-            renderChart(inc, exp);
+            } else { list.innerHTML = '<div class="text-center text-muted small py-2">Tidak ada cicilan</div>'; }
         }
 
-        // --- FITUR CSV DOWNLOAD ---
-        function downloadCSV() {
-            if(currentTrxData.length === 0) return alert("Tidak ada data untuk di-download bulan ini.");
-            
-            let csv = 'Tanggal,Tipe,Kategori,Nominal,Deskripsi,DompetID\n';
-            currentTrxData.forEach(row => {
-                const date = new Date(row.date).toLocaleDateString('id-ID');
-                csv += `${date},${row.type},${row.category},${row.amount},"${row.description || ''}",${row.wallet_id}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            // Nama file: Laporan_Januari_2026.csv
-            a.setAttribute('download', `Laporan_${document.getElementById('monthLabel').innerText.replace(' ', '_')}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        // --- FUNGSI LAINNYA (SAMA) ---
         async function loadWallets() {
             const { data } = await _supabase.from('wallets').select('*').order('created_at');
             myWallets = data || [];
             const list = document.getElementById('walletList');
-            const sels = [document.getElementById('trxWallet'), document.getElementById('tfFrom'), document.getElementById('tfTo'), document.getElementById('srcWallet')];
+            const sels = [document.getElementById('trxWallet'), document.getElementById('tfFrom'), document.getElementById('tfTo'), document.getElementById('srcWallet'), document.getElementById('srcWalletDebt')];
             list.innerHTML = ''; sels.forEach(s => s.innerHTML = '');
             totalWallet = 0;
             if(myWallets.length === 0) list.innerHTML = '<div class="text-center py-3 small text-muted">Belum ada dompet</div>';
@@ -265,11 +216,84 @@
             });
             document.getElementById('walletCount').innerText = myWallets.length + " Akun";
         }
+
+        async function loadTransactions() {
+            const list = document.getElementById('transactionList');
+            list.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            const monthName = viewDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            document.getElementById('monthLabel').innerText = monthName;
+            document.getElementById('chartLabel').innerText = monthName;
+            const startStr = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString();
+            const endStr = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+            const { data, error } = await _supabase.from('transactions').select('*').eq('user_id', currentUser.id).gte('date', startStr).lte('date', endStr).order('date', {ascending:false});
+            if(error) { list.innerHTML = '<div class="text-danger text-center">Gagal memuat</div>'; return; }
+            currentTrxData = data || [];
+            list.innerHTML = ''; let inc=0, exp=0;
+            if(!data || data.length === 0) { list.innerHTML = '<div class="text-center py-5 text-muted small">Belum ada transaksi</div>'; } 
+            else {
+                data.forEach(t => {
+                    if(t.type==='income') inc+=t.amount; else if(t.type==='expense') exp+=t.amount;
+                    const wName = myWallets.find(w => w.id == t.wallet_id)?.name || 'Dompet Dihapus';
+                    let bg='bg-inc',icon='fa-arrow-down',col='text-success',sign='+';
+                    if(t.type==='expense'){bg='bg-exp';icon='fa-arrow-up';col='text-danger';sign='-';}
+                    if(t.type==='transfer'){bg='bg-trf';icon='fa-exchange-alt';col='text-dark';sign='';}
+                    
+                    // --- PERBAIKAN DISPLAY RIWAYAT: Judul Pakai Description kalau ada ---
+                    const displayTitle = t.description ? t.description : t.category;
+                    const displaySub = `${t.category} • ${new Date(t.date).toLocaleDateString()} • ${wName}`;
+
+                    list.innerHTML += `
+                    <div class="trx-item">
+                        <div class="d-flex align-items-center">
+                            <div class="trx-icon-box ${bg}"><i class="fas ${icon}"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">${displayTitle}</h6>
+                                <small class="text-muted" style="font-size:0.8rem">${displaySub}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <h6 class="fw-bold mb-0 ${col}">${sign} ${fmt(t.amount)}</h6>
+                            <i class="fas fa-trash text-muted opacity-25 small cursor-pointer" onclick="hapusTrx(${t.id}, ${t.wallet_id}, ${t.amount}, '${t.type}')"></i>
+                        </div>
+                    </div>`;
+                });
+            }
+            renderChart(inc, exp);
+        }
+
+        // --- FITUR DOWNLOAD CSV (DIPERBAIKI: NAMA DOMPET) ---
+        function downloadCSV() {
+            if(currentTrxData.length === 0) return alert("Tidak ada data untuk di-download bulan ini.");
+            
+            // Header CSV yang lebih manusiawi
+            let csv = 'Tanggal,Tipe,Kategori,Nominal,Keterangan,Nama Dompet\n';
+            
+            currentTrxData.forEach(row => {
+                const date = new Date(row.date).toLocaleDateString('id-ID');
+                // Cari Nama Dompet dari ID
+                const wName = myWallets.find(w => w.id == row.wallet_id)?.name || 'Dompet Dihapus';
+                // Bersihkan deskripsi dari koma biar file CSV aman
+                const cleanDesc = (row.description || '').replace(/,/g, ' '); 
+                
+                csv += `${date},${row.type},${row.category},${row.amount},"${cleanDesc}","${wName}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `Laporan_${document.getElementById('monthLabel').innerText.replace(' ', '_')}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // ... FUNGSI LAINNYA TIDAK BERUBAH (HANYA FORMATTING) ...
         async function loadGoals() {
             const { data: goals } = await _supabase.from('goals').select('*').order('created_at');
             const list = document.getElementById('goalList'); list.innerHTML = '';
-            totalGoal = 0; goalDetails = []; 
-            window.myGoals = goals || [];
+            totalGoal = 0; goalDetails = []; window.myGoals = goals || [];
             if(goals && goals.length > 0) {
                 for(let g of goals) {
                     const { data: trxs } = await _supabase.from('transactions').select('amount').eq('goal_id', g.id);
@@ -281,12 +305,12 @@
                 }
             } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
         }
-        function editGoal(id) { const g = window.myGoals.find(item => item.id == id); if(g) { document.getElementById('editGId').value = g.id; document.getElementById('gName').value = g.name; document.getElementById('gTarget').value = g.target_amount; bukaModal('modalGoal'); } }
-        async function hapusGoal(id, name) { if(confirm(`Hapus target "${name}"?`)) { await _supabase.from('goals').delete().eq('id', id); loadAll(); } }
-        async function simpanGoal() { const id=document.getElementById('editGId').value,n=document.getElementById('gName').value,t=document.getElementById('gTarget').value; if(id) await _supabase.from('goals').update({name:n,target_amount:t}).eq('id',id); else await _supabase.from('goals').insert({user_id:currentUser.id,name:n,target_amount:t}); bukaModal('modalGoal',false); document.getElementById('editGId').value='';document.getElementById('gName').value='';document.getElementById('gTarget').value='';loadAll(); }
-        async function simpanTransaksi() { const t=document.querySelector('input[name="trxType"]:checked').value, w=document.getElementById('trxWallet').value, a=parseFloat(document.getElementById('trxAmount').value), c=document.getElementById('trxCategory').value, d=document.getElementById('trxDesc').value; if(!a) return alert("Nominal?"); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:t, amount:a, category:c, description:d, date:new Date().toISOString()}); const wa=myWallets.find(x=>x.id==w); const nb=t==='income'?parseFloat(wa.balance)+a:parseFloat(wa.balance)-a; await _supabase.from('wallets').update({balance:nb}).eq('id',w); bukaModal('modalTransaksi',false); document.getElementById('trxAmount').value=''; loadAll(); }
-        async function simpanTransfer() { const f=document.getElementById('tfFrom').value, t=document.getElementById('tfTo').value, a=parseFloat(document.getElementById('tfAmt').value); if(f==t||!a) return alert("Cek data!"); const wf=myWallets.find(x=>x.id==f), wt=myWallets.find(x=>x.id==t); if(wf.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wf.balance)-a}).eq('id',f); await _supabase.from('wallets').update({balance:parseFloat(wt.balance)+a}).eq('id',t); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:f, type:'transfer', amount:a, category:'Transfer', description:'Ke '+wt.name, date:new Date().toISOString()}); bukaModal('modalTransfer',false); document.getElementById('tfAmt').value=''; loadAll(); }
-        async function prosesNabung() { const g=document.getElementById('targetIdHide').value, w=document.getElementById('srcWallet').value, a=parseFloat(document.getElementById('saveAmount').value); const wa=myWallets.find(x=>x.id==w); if(wa.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wa.balance)-a}).eq('id',w); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:'expense', amount:a, category:'Tabungan', description:'Nabung Target', goal_id:g, date:new Date().toISOString()}); bukaModal('modalNabung',false); document.getElementById('saveAmount').value=''; loadAll(); }
+
+        function changeMonth(offset) { viewDate.setMonth(viewDate.getMonth() + offset); loadTransactions(); }
+        async function simpanDebt() { const n=document.getElementById('dName').value, t=document.getElementById('dTotal').value; if(!n || !t) return alert("Lengkapi data!"); await _supabase.from('debts').insert({user_id:currentUser.id, name:n, total_amount:t, paid_amount:0}); bukaModal('modalDebt', false); document.getElementById('dName').value=''; document.getElementById('dTotal').value=''; loadAll(); }
+        async function prosesBayarCicilan() { const dId = document.getElementById('debtIdHide').value; const wId = document.getElementById('srcWalletDebt').value; const amt = parseFloat(document.getElementById('payDebtAmount').value); const wa = myWallets.find(w => w.id == wId); if(wa.balance < amt) return alert("Saldo dompet kurang!"); const { data: dData } = await _supabase.from('debts').select('*').eq('id', dId).single(); const newPaid = parseFloat(dData.paid_amount) + amt; await _supabase.from('wallets').update({balance: parseFloat(wa.balance) - amt}).eq('id', wId); await _supabase.from('debts').update({paid_amount: newPaid}).eq('id', dId); await _supabase.from('transactions').insert({ user_id: currentUser.id, wallet_id: wId, type: 'expense', amount: amt, category: 'Cicilan', description: 'Bayar ' + dData.name, date: new Date().toISOString() }); bukaModal('modalBayarCicilan', false); document.getElementById('payDebtAmount').value=''; loadAll(); }
+        async function hapusDebt(id, name) { if(confirm(`Hapus data cicilan "${name}"?`)) { await _supabase.from('debts').delete().eq('id', id); loadAll(); } }
+        function modalBayarCicilan(id, n) { document.getElementById('debtIdHide').value=id; document.getElementById('lblDebtName').innerText=n; bukaModal('modalBayarCicilan'); }
         function fmt(n) { return new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR', minimumFractionDigits:0}).format(n); }
         function bukaModal(id, s=true) { const m=bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); s?m.show():m.hide(); }
         function modeTrx(t) { document.getElementById(t==='income'?'inc':'exp').checked=true; updateCat(); bukaModal('modalTransaksi'); }
@@ -297,6 +321,12 @@
         async function hapusD(id, n) { if(confirm("Hapus "+n+"?")) { await _supabase.from('transactions').delete().eq('wallet_id',id); await _supabase.from('wallets').delete().eq('id',id); loadAll(); } }
         function editD(id) { const w = myWallets.find(x=>x.id==id); document.getElementById('editWId').value=w.id; document.getElementById('wName').value=w.name; document.getElementById('wBalance').value=w.balance; bukaModal('modalAddWallet'); }
         async function simpanDompet() { const id=document.getElementById('editWId').value, n=document.getElementById('wName').value, b=document.getElementById('wBalance').value; if(id) await _supabase.from('wallets').update({name:n,balance:b}).eq('id',id); else await _supabase.from('wallets').insert({user_id:currentUser.id,name:n,balance:b||0}); bukaModal('modalAddWallet',false); document.getElementById('editWId').value=''; loadAll(); }
+        function editGoal(id) { const g = window.myGoals.find(item => item.id == id); if(g) { document.getElementById('editGId').value = g.id; document.getElementById('gName').value = g.name; document.getElementById('gTarget').value = g.target_amount; bukaModal('modalGoal'); } }
+        async function hapusGoal(id, name) { if(confirm(`Hapus target "${name}"?`)) { await _supabase.from('goals').delete().eq('id', id); loadAll(); } }
+        async function simpanGoal() { const id=document.getElementById('editGId').value,n=document.getElementById('gName').value,t=document.getElementById('gTarget').value; if(id) await _supabase.from('goals').update({name:n,target_amount:t}).eq('id',id); else await _supabase.from('goals').insert({user_id:currentUser.id,name:n,target_amount:t}); bukaModal('modalGoal',false); document.getElementById('editGId').value='';document.getElementById('gName').value='';document.getElementById('gTarget').value='';loadAll(); }
+        async function simpanTransaksi() { const t=document.querySelector('input[name="trxType"]:checked').value, w=document.getElementById('trxWallet').value, a=parseFloat(document.getElementById('trxAmount').value), c=document.getElementById('trxCategory').value, d=document.getElementById('trxDesc').value; if(!a) return alert("Nominal?"); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:t, amount:a, category:c, description:d, date:new Date().toISOString()}); const wa=myWallets.find(x=>x.id==w); const nb=t==='income'?parseFloat(wa.balance)+a:parseFloat(wa.balance)-a; await _supabase.from('wallets').update({balance:nb}).eq('id',w); bukaModal('modalTransaksi',false); document.getElementById('trxAmount').value=''; loadAll(); }
+        async function simpanTransfer() { const f=document.getElementById('tfFrom').value, t=document.getElementById('tfTo').value, a=parseFloat(document.getElementById('tfAmt').value); if(f==t||!a) return alert("Cek data!"); const wf=myWallets.find(x=>x.id==f), wt=myWallets.find(x=>x.id==t); if(wf.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wf.balance)-a}).eq('id',f); await _supabase.from('wallets').update({balance:parseFloat(wt.balance)+a}).eq('id',t); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:f, type:'transfer', amount:a, category:'Transfer', description:'Ke '+wt.name, date:new Date().toISOString()}); bukaModal('modalTransfer',false); document.getElementById('tfAmt').value=''; loadAll(); }
+        async function prosesNabung() { const g=document.getElementById('targetIdHide').value, w=document.getElementById('srcWallet').value, a=parseFloat(document.getElementById('saveAmount').value); const wa=myWallets.find(x=>x.id==w); if(wa.balance<a) return alert("Saldo kurang!"); await _supabase.from('wallets').update({balance:parseFloat(wa.balance)-a}).eq('id',w); await _supabase.from('transactions').insert({user_id:currentUser.id, wallet_id:w, type:'expense', amount:a, category:'Tabungan', description:'Nabung Target', goal_id:g, date:new Date().toISOString()}); bukaModal('modalNabung',false); document.getElementById('saveAmount').value=''; loadAll(); }
         document.getElementById('btnLogout').addEventListener('click', async () => { await _supabase.auth.signOut(); localStorage.clear(); window.location.href = 'index.html?logout=true'; });
     </script>
 </body>
