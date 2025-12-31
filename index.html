@@ -1,4 +1,70 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Widi Finance</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #0066FF; --bg: #F2F4F7; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        
+        .auth-card {
+            background: white; width: 100%; max-width: 400px;
+            padding: 40px 30px; border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 102, 255, 0.1);
+        }
+        .brand-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: block; text-align: center; }
+        .brand-text { text-align: center; color: #6B7280; font-size: 0.9rem; margin-bottom: 30px; }
+        
+        .form-control {
+            background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px;
+            padding: 12px 15px; font-weight: 500; margin-bottom: 15px;
+        }
+        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1); }
+        
+        .btn-primary {
+            background: var(--primary); border: none; width: 100%; padding: 12px;
+            border-radius: 12px; font-weight: 700; font-size: 1rem; margin-top: 10px;
+            transition: 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .toggle-text { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #6B7280; }
+        .toggle-link { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
+        .alert { font-size: 0.85rem; border-radius: 12px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <span class="brand-logo"><i class="fas fa-wallet me-2"></i>Widi Finance</span>
+        <p class="brand-text">Kelola uangmu, raih mimpimu.</p>
+        
+        <div class="alert alert-danger" id="alertMsg">Error message here</div>
+        <div class="alert alert-success" id="successMsg">Akun berhasil dibuat! Silakan login.</div>
+
+        <form id="authForm">
+            <label class="small fw-bold text-muted mb-1 ms-1">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="nama@email.com" required>
+            
+            <label class="small fw-bold text-muted mb-1 ms-1">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Minimal 6 karakter" required>
+            
+            <button type="submit" class="btn btn-primary" id="btnSubmit">Masuk</button>
+        </form>
+
+        <p class="toggle-text">
+            <span id="questionText">Belum punya akun?</span>
+            <span class="toggle-link" onclick="toggleMode()" id="toggleBtn">Daftar Sekarang</span>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = 'https://zzloutsqmpkifzijxaip.supabase.co';
         const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
@@ -75,3 +141,5 @@
         // Jalankan pengecekan saat halaman dibuka
         checkSession();
     </script>
+</body>
+</html>
