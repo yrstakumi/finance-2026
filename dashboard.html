@@ -277,9 +277,34 @@
         async function hapusD(id, n) { if(confirm("Hapus "+n+"?")) { await _supabase.from('transactions').delete().eq('wallet_id',id); await _supabase.from('wallets').delete().eq('id',id); loadAll(); } }
         function editD(id) { const w = myWallets.find(x=>x.id==id); document.getElementById('editWId').value=w.id; document.getElementById('wName').value=w.name; document.getElementById('wBalance').value=w.balance; bukaModal('modalAddWallet'); }
         async function simpanDompet() { const id=document.getElementById('editWId').value, n=document.getElementById('wName').value, b=document.getElementById('wBalance').value; if(id) await _supabase.from('wallets').update({name:n,balance:b}).eq('id',id); else await _supabase.from('wallets').insert({user_id:currentUser.id,name:n,balance:b||0}); bukaModal('modalAddWallet',false); document.getElementById('editWId').value=''; loadAll(); }
-        document.getElementById('btnLogout').addEventListener('click', async()=>{ await _supabase.auth.signOut(); window.location.href='index.html'; });
+        // GANTI BAGIAN INI DI dashboard.html
+// --- GANTI BAGIAN INIT & LOGOUT DI BAWAH JADI INI ---
 
-        init();
+        // LOGOUT (Pake kode rahasia ?logout=true)
+        document.getElementById('btnLogout').addEventListener('click', async () => { 
+            await _supabase.auth.signOut(); 
+            localStorage.clear();
+            window.location.href = 'index.html?logout=true'; 
+        });
+
+        // INIT PINTAR (Menunggu Supabase Siap Dulu)
+        document.addEventListener("DOMContentLoaded", () => {
+            // Pasang pendengar: Kalau status login berubah/siap, baru jalan
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    // User ada! Load data sekarang
+                    currentUser = session.user;
+                    document.getElementById('userEmail').innerText = currentUser.email;
+                    updateCat();
+                    loadAll(); // <-- INI YANG BIKIN DATA MUNCUL OTOMATIS
+                } else {
+                    // Gak ada user, tendang ke login
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+        
+        // Hapus baris "init();" yang lama di paling bawah
     </script>
 </body>
 </html>
