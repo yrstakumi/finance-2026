@@ -3,57 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Widi Finansial 2026</title>
+    <title>Masuk - Widi Finance</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        :root { --primary: #0066FF; --bg: #F2F4F7; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        
+        .auth-card {
+            background: white; width: 100%; max-width: 400px;
+            padding: 40px 30px; border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 102, 255, 0.1);
         }
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
+        .brand-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: block; text-align: center; }
+        .brand-text { text-align: center; color: #6B7280; font-size: 0.9rem; margin-bottom: 30px; }
+        
+        .form-control {
+            background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px;
+            padding: 12px 15px; font-weight: 500; margin-bottom: 15px;
         }
+        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1); }
+        
+        .btn-primary {
+            background: var(--primary); border: none; width: 100%; padding: 12px;
+            border-radius: 12px; font-weight: 700; font-size: 1rem; margin-top: 10px;
+            transition: 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .toggle-text { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #6B7280; }
+        .toggle-link { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
+        .alert { font-size: 0.85rem; border-radius: 12px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="login-card mx-auto">
-            <div class="text-center mb-4">
-                <h4>Widi Finansial <span class="badge bg-warning text-dark">2026</span></h4>
-                <p class="text-muted small">Silakan Login, Pak Widi</p>
-            </div>
+    <div class="auth-card">
+        <span class="brand-logo"><i class="fas fa-wallet me-2"></i>Widi Finance</span>
+        <p class="brand-text">Kelola uangmu, raih mimpimu.</p>
+        
+        <div class="alert alert-danger" id="alertMsg">Error message here</div>
+        <div class="alert alert-success" id="successMsg">Akun berhasil dibuat! Silakan login.</div>
 
-            <div id="alertMessage" class="alert alert-danger d-none" role="alert"></div>
+        <form id="authForm">
+            <label class="small fw-bold text-muted mb-1 ms-1">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="nama@email.com" required>
+            
+            <label class="small fw-bold text-muted mb-1 ms-1">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Minimal 6 karakter" required>
+            
+            <button type="submit" class="btn btn-primary" id="btnSubmit">Masuk</button>
+        </form>
 
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary py-2" style="background-color: #1e3c72;">Masuk Sistem</button>
-                </div>
-            </form>
-        </div>
+        <p class="toggle-text">
+            <span id="questionText">Belum punya akun?</span>
+            <span class="toggle-link" onclick="toggleMode()" id="toggleBtn">Daftar Sekarang</span>
+        </p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/auth.js"></script>
+    <script>
+        const supabaseUrl = 'https://zzloutsqmpkifzijxaip.supabase.co';
+        const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv'; // Key publik aman ditaruh di sini
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let isLoginMode = true;
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            const btn = document.getElementById('btnSubmit');
+            const tog = document.getElementById('toggleBtn');
+            const q = document.getElementById('questionText');
+            const msg = document.getElementById('successMsg');
+            
+            msg.style.display = 'none'; // Sembunyikan pesan sukses kalau ganti mode
+            
+            if(isLoginMode) {
+                btn.innerText = "Masuk";
+                q.innerText = "Belum punya akun?";
+                tog.innerText = "Daftar Sekarang";
+            } else {
+                btn.innerText = "Daftar Akun Baru";
+                q.innerText = "Sudah punya akun?";
+                tog.innerText = "Login disini";
+            }
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnSubmit');
+            const alertBox = document.getElementById('alertMsg');
+            const successBox = document.getElementById('successMsg');
+
+            alertBox.style.display = 'none';
+            successBox.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
+            try {
+                if (isLoginMode) {
+                    // --- LOGIKA LOGIN ---
+                    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    // Sukses Login -> Lempar ke Dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // --- LOGIKA REGISTER ---
+                    const { data, error } = await _supabase.auth.signUp({ 
+                        email, 
+                        password,
+                        options: {
+                            // Matikan verifikasi email di sisi client (tetap butuh setting di Supabase Dashboard)
+                            emailRedirectTo: 'https://yrstakumi.github.io/finance-2026/dashboard.html'
+                        } 
+                    });
+                    if (error) throw error;
+                    
+                    // Sukses Daftar
+                    successBox.style.display = 'block';
+                    successBox.innerText = "Akun berhasil dibuat! Mengalihkan...";
+                    
+                    // Auto Login setelah daftar
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                alertBox.style.display = 'block';
+                alertBox.innerText = error.message;
+                btn.disabled = false;
+                btn.innerText = isLoginMode ? "Masuk" : "Daftar Akun Baru";
+            }
+        });
+
+        // Cek kalau user sebenarnya sudah login, langsung lempar ke dashboard
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+        checkSession();
+    </script>
 </body>
 </html>
