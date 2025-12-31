@@ -14,7 +14,7 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); padding-bottom: 80px; }
         .navbar { background: white; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
         
-        /* CARD HEADER (UPDATED) */
+        /* CARD HEADER (Tetap V13) */
         .card-balance {
             background: linear-gradient(135deg, #0066FF 0%, #2563EB 100%);
             border-radius: 20px; padding: 25px; color: white;
@@ -27,20 +27,12 @@
             border-radius: 50%; pointer-events: none;
         }
         
-        /* AREA RINCIAN ASET */
         .asset-breakdown {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 15px;
+            margin-top: 20px; font-size: 0.85rem; backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .asset-row {
-            display: flex; justify-content: space-between; margin-bottom: 5px;
-            padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+        .asset-row { display: flex; justify-content: space-between; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .asset-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
         .card-box { background: white; border-radius: 16px; border: 1px solid #E5E7EB; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
@@ -72,12 +64,9 @@
                     <span class="badge bg-white bg-opacity-25" id="walletCount">0 Akun</span>
                 </div>
             </div>
-
             <div class="asset-breakdown">
                 <small class="opacity-75 fw-bold mb-2 d-block text-uppercase" style="font-size: 0.7rem;">Lokasi Uang Kamu:</small>
-                <div id="detailAsetList">
-                    <small class="opacity-50">Memuat rincian...</small>
-                </div>
+                <div id="detailAsetList"><small class="opacity-50">Memuat rincian...</small></div>
             </div>
         </div>
 
@@ -98,10 +87,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0 text-primary">Dompet Saya</h6><button class="btn btn-sm btn-primary rounded-pill px-3" onclick="bukaModal('modalAddWallet')">+ Baru</button></div>
                     <div id="walletList"></div>
                 </div>
+                
                 <div class="card-box">
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0">Target Tabungan</h6><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="bukaModal('modalGoal')">+ Target</button></div>
                     <div id="goalList"></div>
                 </div>
+
                 <div class="card-box">
                     <h6 class="fw-bold mb-3">Aksi Cepat</h6>
                     <div class="d-grid gap-2">
@@ -117,9 +108,16 @@
     <button class="btn-float" onclick="bukaModal('modalTransaksi')"><i class="fas fa-plus"></i></button>
 
     <div class="modal fade" id="modalTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-4">Catat Transaksi</h5><div class="d-flex gap-2 mb-3"><input type="radio" class="btn-check" name="trxType" id="exp" value="expense" checked onchange="updateCat()"><label class="btn btn-outline-danger w-50" for="exp" id="lblExp">Keluar</label><input type="radio" class="btn-check" name="trxType" id="inc" value="income" onchange="updateCat()"><label class="btn btn-outline-success w-50" for="inc" id="lblInc">Masuk</label></div><div class="mb-2"><label>Dompet</label><select class="form-select" id="trxWallet"></select></div><div class="mb-2"><label>Nominal</label><input type="number" class="form-control" id="trxAmount"></div><div class="mb-2"><label>Kategori</label><select class="form-select" id="trxCategory"></select></div><div class="mb-3"><label>Catatan</label><input type="text" class="form-control" id="trxDesc"></div><button class="btn btn-primary w-100" onclick="simpanTransaksi()">Simpan</button></div></div></div></div>
-    <div class="modal fade" id="modalAddWallet" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Tambah Dompet</h5><input type="hidden" id="editWId"><div class="mb-2"><label>Nama</label><input type="text" class="form-control" id="wName"></div><div class="mb-3"><label>Saldo</label><input type="number" class="form-control" id="wBalance"></div><button class="btn btn-primary w-100" onclick="simpanDompet()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalAddWallet" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Kelola Dompet</h5><input type="hidden" id="editWId"><div class="mb-2"><label>Nama</label><input type="text" class="form-control" id="wName"></div><div class="mb-3"><label>Saldo</label><input type="number" class="form-control" id="wBalance"></div><button class="btn btn-primary w-100" onclick="simpanDompet()">Simpan</button></div></div></div></div>
     <div class="modal fade" id="modalTransfer" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold text-center mb-3">Transfer</h5><div class="d-flex gap-2 mb-2"><div class="w-50"><label class="small fw-bold text-danger">DARI</label><select class="form-select" id="tfFrom"></select></div><div class="w-50"><label class="small fw-bold text-success">KE</label><select class="form-select" id="tfTo"></select></div></div><div class="mb-3"><label>Nominal</label><input type="number" class="form-control text-center fw-bold" id="tfAmt"></div><button class="btn btn-dark w-100" onclick="simpanTransfer()">Kirim</button></div></div></div></div>
-    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h5 class="fw-bold mb-3">Buat Target</h5><input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang"><input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target"><button class="btn btn-success w-100" onclick="simpanGoal()">Simpan</button></div></div></div></div>
+    
+    <div class="modal fade" id="modalGoal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4">
+        <h5 class="fw-bold mb-3">Kelola Target</h5>
+        <input type="hidden" id="editGId"> <input type="text" class="form-control mb-2" id="gName" placeholder="Nama Barang">
+        <input type="number" class="form-control mb-3" id="gTarget" placeholder="Harga Target">
+        <button class="btn btn-success w-100" onclick="simpanGoal()">Simpan Target</button>
+    </div></div></div></div>
+
     <div class="modal fade" id="modalNabung" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body p-4"><h6 class="text-center mb-3">Nabung ke <span id="lblTargetName" class="text-primary fw-bold"></span></h6><input type="hidden" id="targetIdHide"><div class="mb-2"><label>Ambil Dari</label><select class="form-select" id="srcWallet"></select></div><div class="mb-3"><label>Jumlah</label><input type="number" class="form-control" id="saveAmount"></div><button class="btn btn-success w-100" onclick="prosesNabung()">Simpan</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -131,49 +129,24 @@
         const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
         let currentUser=null, myWallets=[];
-        
-        let totalWallet = 0;
-        let totalGoal = 0;
-        let goalDetails = []; // Array buat nyimpen nama target & duitnya
+        let totalWallet = 0; let totalGoal = 0; let goalDetails = [];
 
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
             currentUser = session.user;
-            updateCat();
-            await loadAll();
+            document.getElementById('userEmail').innerText = currentUser.email;
+            updateCat(); await loadAll();
         }
 
         async function loadAll() {
-            await loadWallets(); 
-            await loadGoals(); 
-            await loadTransactions();
-            
-            // LOGIC RENDER RINCIAN ASET (Biar gak bingung)
+            await loadWallets(); await loadGoals(); await loadTransactions();
             const grandTotal = totalWallet + totalGoal;
             document.getElementById('totalHarta').innerText = fmt(grandTotal);
-
             const detailBox = document.getElementById('detailAsetList');
-            let html = `
-                <div class="asset-row">
-                    <span>💵 Sisa di Dompet</span>
-                    <span class="fw-bold">${fmt(totalWallet)}</span>
-                </div>
-            `;
-
-            // Loop semua target yang ada isinya
-            if(goalDetails.length > 0) {
-                goalDetails.forEach(g => {
-                    html += `
-                    <div class="asset-row">
-                        <span>🎯 ${g.name}</span>
-                        <span class="fw-bold">${fmt(g.amount)}</span>
-                    </div>`;
-                });
-            } else {
-                html += `<div class="asset-row opacity-50"><span>🎯 Belum ada tabungan</span><span>Rp 0</span></div>`;
-            }
-
+            let html = `<div class="asset-row"><span>💵 Sisa di Dompet</span><span class="fw-bold">${fmt(totalWallet)}</span></div>`;
+            if(goalDetails.length > 0) { goalDetails.forEach(g => { html += `<div class="asset-row"><span>🎯 ${g.name}</span><span class="fw-bold">${fmt(g.amount)}</span></div>`; }); } 
+            else { html += `<div class="asset-row opacity-50"><span>🎯 Belum ada tabungan</span><span>Rp 0</span></div>`; }
             detailBox.innerHTML = html;
         }
 
@@ -183,10 +156,8 @@
             const list = document.getElementById('walletList');
             const sels = [document.getElementById('trxWallet'), document.getElementById('tfFrom'), document.getElementById('tfTo'), document.getElementById('srcWallet')];
             list.innerHTML = ''; sels.forEach(s => s.innerHTML = '');
-            
             totalWallet = 0;
             if(myWallets.length === 0) list.innerHTML = '<div class="text-center py-3 small text-muted">Belum ada dompet</div>';
-
             myWallets.forEach(w => {
                 totalWallet += parseFloat(w.balance);
                 list.innerHTML += `<div class="wallet-item"><div class="d-flex align-items-center gap-3"><div class="wallet-icon"><i class="fas fa-wallet"></i></div><div><h6 class="fw-bold mb-0" style="font-size:0.9rem">${w.name}</h6><small class="text-muted">${fmt(w.balance)}</small></div></div><div><i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editD(${w.id})"></i><i class="fas fa-trash text-danger small cursor-pointer" onclick="hapusD(${w.id}, '${w.name}')"></i></div></div>`;
@@ -197,27 +168,82 @@
         }
 
         async function loadGoals() {
-            const { data: goals } = await _supabase.from('goals').select('*');
+            const { data: goals } = await _supabase.from('goals').select('*').order('created_at');
             const list = document.getElementById('goalList'); list.innerHTML = '';
-            
-            totalGoal = 0;
-            goalDetails = []; // Reset list rincian
+            totalGoal = 0; goalDetails = []; 
+
+            // Simpan goals di variabel global biar bisa diakses fungsi edit
+            window.myGoals = goals || [];
 
             if(goals && goals.length > 0) {
                 for(let g of goals) {
                     const { data: trxs } = await _supabase.from('transactions').select('amount').eq('goal_id', g.id);
                     let cur = 0; if(trxs) trxs.forEach(t => cur += t.amount);
-                    
                     totalGoal += cur;
-                    // Simpan data buat ditampilkan di atas
                     if(cur > 0) goalDetails.push({ name: g.name, amount: cur });
-
                     const pct = Math.min(100, Math.round((cur/g.target_amount)*100));
-                    list.innerHTML += `<div class="mb-3"><div class="d-flex justify-content-between small fw-bold mb-1"><span>${g.name}</span><span class="text-primary">${pct}%</span></div><div class="progress mb-2"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div><div class="d-flex justify-content-between align-items-center"><small class="text-muted">${fmt(cur)} / ${fmt(g.target_amount)}</small><button class="btn btn-sm btn-light text-primary py-0" onclick="modalNabung(${g.id},'${g.name}')">+ Isi</button></div></div>`;
+                    
+                    // UPDATE: Nambah tombol Edit (Pensil) dan Hapus (Sampah) di header Target
+                    list.innerHTML += `
+                    <div class="mb-3 border-bottom pb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold">${g.name} <span class="text-primary">${pct}%</span></span>
+                            <div>
+                                <i class="fas fa-pencil-alt text-muted small me-2 cursor-pointer" onclick="editGoal(${g.id})"></i>
+                                <i class="fas fa-trash text-danger small cursor-pointer" onclick="hapusGoal(${g.id}, '${g.name}')"></i>
+                            </div>
+                        </div>
+                        <div class="progress mb-2"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">${fmt(cur)} / ${fmt(g.target_amount)}</small>
+                            <button class="btn btn-sm btn-light text-primary py-0" onclick="modalNabung(${g.id},'${g.name}')">+ Isi</button>
+                        </div>
+                    </div>`;
                 }
             } else { list.innerHTML = '<div class="text-center text-muted small py-2">Belum ada target</div>'; }
         }
 
+        // FUNGSI BARU BUAT EDIT GOAL
+        function editGoal(id) {
+            const g = window.myGoals.find(item => item.id == id);
+            if(g) {
+                document.getElementById('editGId').value = g.id;
+                document.getElementById('gName').value = g.name;
+                document.getElementById('gTarget').value = g.target_amount;
+                bukaModal('modalGoal');
+            }
+        }
+
+        async function hapusGoal(id, name) {
+            if(confirm(`Hapus target "${name}"?`)) {
+                await _supabase.from('goals').delete().eq('id', id);
+                // Transaksi tabungan terkait akan tetap ada, tapi goal_id jadi null (aman)
+                loadAll();
+            }
+        }
+
+        async function simpanGoal() { 
+            const id = document.getElementById('editGId').value;
+            const n = document.getElementById('gName').value;
+            const t = document.getElementById('gTarget').value;
+            
+            if(id) {
+                // Mode Update
+                await _supabase.from('goals').update({name: n, target_amount: t}).eq('id', id);
+            } else {
+                // Mode Baru
+                await _supabase.from('goals').insert({user_id:currentUser.id, name: n, target_amount: t}); 
+            }
+            
+            bukaModal('modalGoal', false); 
+            // Reset Form
+            document.getElementById('editGId').value = '';
+            document.getElementById('gName').value = '';
+            document.getElementById('gTarget').value = '';
+            loadAll(); 
+        }
+
+        // --- SISA KODINGAN LAMA (TIDAK BERUBAH) ---
         async function loadTransactions() {
             const list = document.getElementById('transactionList');
             const { data, error } = await _supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('date', {ascending:false}).limit(20);
@@ -251,7 +277,6 @@
         async function hapusD(id, n) { if(confirm("Hapus "+n+"?")) { await _supabase.from('transactions').delete().eq('wallet_id',id); await _supabase.from('wallets').delete().eq('id',id); loadAll(); } }
         function editD(id) { const w = myWallets.find(x=>x.id==id); document.getElementById('editWId').value=w.id; document.getElementById('wName').value=w.name; document.getElementById('wBalance').value=w.balance; bukaModal('modalAddWallet'); }
         async function simpanDompet() { const id=document.getElementById('editWId').value, n=document.getElementById('wName').value, b=document.getElementById('wBalance').value; if(id) await _supabase.from('wallets').update({name:n,balance:b}).eq('id',id); else await _supabase.from('wallets').insert({user_id:currentUser.id,name:n,balance:b||0}); bukaModal('modalAddWallet',false); document.getElementById('editWId').value=''; loadAll(); }
-        async function simpanGoal() { await _supabase.from('goals').insert({user_id:currentUser.id, name:document.getElementById('gName').value, target_amount:document.getElementById('gTarget').value}); bukaModal('modalGoal',false); loadAll(); }
         document.getElementById('btnLogout').addEventListener('click', async()=>{ await _supabase.auth.signOut(); window.location.href='index.html'; });
 
         init();
