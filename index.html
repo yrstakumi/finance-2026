@@ -141,14 +141,24 @@
             }
         });
 
-        // Cek kalau user sebenarnya sudah login, langsung lempar ke dashboard
-        async function checkSession() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                window.location.href = 'dashboard.html';
-            }
-        }
-        checkSession();
+       // GANTI checkSession() DI index.html JADI INI:
+async function checkSession() {
+    // 1. Cek dulu, apakah user baru aja logout?
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('logout') === 'true') {
+        // Kalau ada tanda logout, JANGAN redirect ke dashboard. Diam saja.
+        // Bersihkan URL biar bersih lagi
+        window.history.replaceState({}, document.title, "index.html");
+        return; 
+    }
+
+    // 2. Kalau bukan logout, baru cek sesi
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+        window.location.href = 'dashboard.html';
+    }
+}
+checkSession();
     </script>
 </body>
 </html>
